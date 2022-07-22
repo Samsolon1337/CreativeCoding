@@ -1,0 +1,27 @@
+*{    
+    font-family: 'Roboto', sans-serif;
+    font-family: 'Bungee', cursive;
+}
+html{
+    border: 5px red solid;
+
+}
+
+main{
+justify-content: center;
+text-align: center;
+height:90vh;
+/*border: 3px solid green;*/ 
+}
+
+/* custom IDs*/
+#test{
+
+    font-size: 20px;
+}
+
+#container{
+    margin: 0px;
+    position: absolute;
+    border: 3px green solid;
+}
