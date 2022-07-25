@@ -1,27 +1,13 @@
-*{    
-    font-family: 'Roboto', sans-serif;
-    font-family: 'Bungee', cursive;
-}
-html{
-    border: 5px red solid;
+html, body {margin: 0px; height: 100%; overflow: hidden}
 
-}
-
-main{
-justify-content: center;
-text-align: center;
-height:90vh;
-/*border: 3px solid green;*/ 
-}
-
-/* custom IDs*/
-#test{
-
-    font-size: 20px;
-}
-
-#container{
-    margin: 0px;
+#canvas{
+    border: 8px #cd8909 solid;
+    padding: 0;
+    margin: auto;
+    display: block;
     position: absolute;
-    border: 3px green solid;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
 }
