@@ -1,13 +1,15 @@
-    
 //      My classes
-
 class vec2{
-    constructor(x=0,y=0){
-        this.x = x;
-        this.y = y;
+    constructor(_x=0,_y=0){
+        this.x = _x;
+        this.y = _y;
     }
     length(){
         return Math.sqrt((this.x*this.x)+(this.y*this.y));// Satz des Petagruas
+    }
+    lengths(_v){
+        let a =_v;
+        return Math.sqrt(((a.x*a.x)-(this.x*this.x))+((a.y*a.y)-(this.y*this.y)));// Satz des Petagruas
     }
     normalize(){
         let scale = this.length();
@@ -15,73 +17,78 @@ class vec2{
         this.y /= scale;
     }
     // Add
-    add(newvec = 0, newvec2 = 0){
-        return new vec2((this.x + newvec),(this.y + newvec2));
+    add(_newvec = 0, _newvec2 = 0){
+        return new vec2((this.x + _newvec),(this.y + _newvec2));
 
     }
-    add(newvec){
-        if(newvec instanceof vec2){
-            return new vec2((this.x + newvec.x),(this.y + newvec.y));
+    add(_newvec){
+        if(_newvec instanceof vec2){
+            return new vec2((this.x + _newvec.x),(this.y + _newvec.y));
         }
     }
     // Subtract
-    sub(newvec = 0, newvec2 = 0){
-        return new vec2((this.x - newvec),(this.y - newvec2));
+    sub(_newvec = 0, _newvec2 = 0){
+        return new vec2((this.x - _newvec),(this.y - _newvec2));
     
     }
-    sub(newvec){
-        if(newvec instanceof vec2){
-            return new vec2((this.x - newvec.x),(this.y - newvec.y));
+    sub(_newvec){
+        if(_newvec instanceof vec2){
+            return new vec2((this.x - _newvec.x),(this.y - _newvec.y));
         }
     }
     // Multiply
-    dot(newvec = 0, newvec2 = 0){
-        return new vec2((this.x * newvec),(this.y * newvec2));
+    dot(_newvec = 0, _newvec2 = 0){
+        return new vec2((this.x * _newvec),(this.y * _newvec2));
     
     }
-    dot(newvec){
-        if(newvec instanceof vec2){
-            return new vec2((this.x * newvec.x),(this.y * newvec.y));
+    dot(_newvec){
+        if(_newvec instanceof vec2){
+            return new vec2((this.x * _newvec.x),(this.y * _newvec.y));
         }
     }
     // Divide
-    div(newvec = 0, newvec2 = 0){
-        return new vec2((this.x / newvec),(this.y / newvec2));
-    
+    div(_newvec = 0, _newvec2 = 0){
+        return new vec2((this.x / _newvec),(this.y / _newvec2));
     }
-    div(newvec){
-        if(newvec instanceof vec2){
-            return new vec2((this.x / newvec.x),(this.y / newvec.y));
+    div(_newvec){
+        if(_newvec instanceof vec2){
+            return new vec2((this.x / _newvec.x),(this.y / _newvec.y));
         }
     }
     
 }
 
 class Segment{
-    	start = new vec2();
+    	origin = new vec2();
         angChange = new vec2();
+        b = new vec2();
+        a = new vec2(0,0);
+        
         /** 
-        @param {vec2} a
+        @param {vec2} _a - the vector
         */
-    constructor(a, angle = 90, len = 100, parent){
+    constructor(_a = new vec2(0,0), _angle = 90, _len = 100, _parent = null){
 
-        if (parent instanceof Segment){ //Following Segments
-            this.a.x = parent.bx;
-            this.a.y = parent.by;
-            this.angle = -(Math.PI / 180)*angle+parent.angle; // Converts the angle to degrees
-            this.len = len;
-            this.parent = parent;     
+        if (_parent instanceof Segment){ //Following Segments
+            this.parent = _parent;     
+            this.name = this.parent.name +1;
+            this.a.x = this.parent.b.x;
+            this.a.y = this.parent.b.y;
+            this.angle = -(Math.PI / 180)*_angle + this.parent.angle; // Converts the angle to degrees
+            this.len = _len;
+
                
         }
         else {//First Segment
-            this.a = a;
+            this.name = 0;
+            this.a.x = _a.x;
+            this.a.y = _a.y;
+            //initialize origin
+            this.origin = this.a;
 
-            this.startX = this.ax; //start Position
-            this.startY = this.ay
-
-            this.angle = -(Math.PI / 180)*angle; // Converts the angle to degrees
-            this.len = len;
-            this.parent = parent;
+            this.angle = -(Math.PI / 180)*_angle; // Converts the angle to degrees
+            this.len = _len;
+            this.parent = _parent;
         }
         this.calcBfromAngle();
 
@@ -90,115 +97,102 @@ class Segment{
     //      Methods
     calcBfromAngle(){
 
-        let dx = this.len* Math.cos(this.angle);
-        let dy = this.len* Math.sin(this.angle);
-        this.bx = this.ax+dx;
-        this.by = this.ay+dy;
+        this.angChange.x = this.len* Math.cos(this.angle);
+        this.angChange.y = this.len* Math.sin(this.angle);
+        this.b.x = this.a.x + this.angChange.x;
+        this.b.y = this.a.y + this.angChange.y;
+
     }
 
     rotate(){
-        this.angle -= Math.sin(-(Math.PI / 180)*this.angle) * 1;
+        this.angle += Math.sin(this.angle) * 1;
         this.calcBfromAngle();
     }
+
     update(){
         if(this.parent != null){
             this.parent.calcBfromAngle();
-            this.ax = this.parent.bx;
-            this.ay = this.parent.by;
-            //this.angle += this.parent.angle;
+            this.a.x = this.parent.b.x;
+            this.a.y = this.parent.b.y;
+            //this.angle = this.parent.angle;
 
         }
         this.calcBfromAngle();
     }
-    calcDistance(v1x,v1y,v2x,v2y){
 
-        let a = (v2y+1)-v1y;
-        let b = (v2x+1)-v1x;
-        let c = Math.sqrt(Math.pow(a,2)) + Math.sqrt(Math.pow(b,2));
-
-        console.log(`A:${a}, B:${b}, C:${c}`);
-
-        return c;
-
-    }
+    
     drawline(ctx){ 
         this.calcBfromAngle();
         ctx.beginPath();
-        ctx.moveTo(this.ax,this.ay);
-        ctx.lineTo(this.bx,this.by);
+        ctx.moveTo(this.a.x,this.a.y);
+        ctx.lineTo(this.b.x,this.b.y);
         ctx.stroke();
 
     }
 
     reactToMouse(ctx){
-        /*ctx.fillRect(this.startX,this.startY,5,5);
+        ctx.fillRect(this.origin.x,this.origin.y,5,5);
         if(this.parent == null){
-            let vecX, vecY, limit = 60,i, scale;
-            vecX = this.ax-mouse.x;
-            vecY= this.ay-mouse.y;
+            let vec = new vec2(), placeholder, limit = 60;
+
+            vec.x = this.a.x-mouse.x;
+            vec.y= this.a.y-mouse.y;
             
-            if(this.ax > mouse.x - limit && this.ax < mouse.x + limit &&
-            this.ay > mouse.y - limit && this.ay < mouse.y + limit){
+            if(this.a.x > mouse.x - limit && this.a.x < mouse.x + limit &&
+            this.a.y > mouse.y - limit && this.a.y < mouse.y + limit){
                 ctx.strokeStyle = "red";
-                console.log(`B:${this.ay}, B:${this.ax}, C:${this.startX} B:${this.startY}`);
-                i = this.calcDistance(this.ax,this.ay,this.startX,this.startY);
+                vec.normalize();
+               // console.log(`B:${this.a.y}, B:${this.a.x}, C:${this.origin.x} B:${this.origin.y}`);
+                //i = this.calcDistance(this.a.x,this.a.y,this.origin.x,this.origin.y);
                 //if( i <= limit){
-                    scale = i/limit;
-                    this.ax = this.startX - (limit +vecX.normalize);
-                    this.ay = this.startY + (limit +vecY);
-                    console.log(this.ax, this.ay);
-                //}
-                //if(this.calcDistance(this.ax,this.ay,this.startX,this.startY) > limit){
-              //     this.ax = this.startX;
-               //     this.ay = this.startY;
-                //}
+                placeholder = this.origin;
+
+                if(this.a.lengths(placeholder) < limit){
+
+
+                
+                    this.a.x = placeholder.x + (limit *vec.x);
+                    this.a.y = placeholder.y + (limit *vec.y);
+                }
+
+                else{
+                   this.a.x = this.origin.x;
+                   this.a.y = this.origin.y;
+                }
                 
             }
-            */
-
-            let a = new vec2(2,3);
-            let b = new vec2(2,1);
-            //let c = a.add(b);
-            console.log(a.add(b),a.dot(b),a.sub(b),a.div(b));
-
+            
             ctx.beginPath();
-            //ctx.arc(mouse.x, mouse.y, limit, 0,  2 * Math.PI);
-            //ctx.moveTo(this.ax,this.ay);
-            //ctx.lineTo(this.ax+vecX,this.ay+vecY);
+            ctx.arc(mouse.x, mouse.y, limit, 0,  2 * Math.PI);
+            ctx.moveTo(this.a.x,this.a.y);
+            ctx.lineTo(this.a.x+vec.x,this.a.y+vec.y);
             ctx.stroke();
-        
-    }
+    
+        }
+    }   
     
     //      Setter 
-    set ang(angle){
-        this.angle = (-(Math.PI / 180)*angle); // Converts the angle to degrees
+    set Angle(_angle){
+        this.angle = (-(Math.PI / 180)*_angle); // Converts the angle to degrees
     } 
-    set aX(ax){
-        this.ax = ax;
+    set A(_a){
+        this.a = _a;
     } 
-    set aY(ay){
-        this.ay = ay;
-    }
-    set length(len){
-        this.len = len;
+    set Length(_len){
+        this.len = _len;
     } 
 }
-
 
 //       Event Listenrer
-
 addEventListener("load", setup);
 addEventListener("resize", updateBox);
-document.onmousemove = function(e){ // mouse movement
-
+document.onmousemove = function(e){ // get mouse position
     mouse.x = e.clientX-cRect.left;
     mouse.y = e.clientY-cRect.top;
-
 }
 
-
+// Loop
 setInterval(draw,20);
-
 
 
 // My constants
@@ -209,8 +203,8 @@ const docSize  = new vec2(canvas.width, canvas.height);//easier Access to width 
 let cRect = canvas.getBoundingClientRect();
 
 //Segment Setup
-let amount = 8;
-let segments = createSegments();
+var amount = 8;
+var segments = createSegments();
 // Mouse Position
 var mouse = new vec2(), prev = new vec2();
 
@@ -227,9 +221,6 @@ function setup() {
     canvas.style.width = docSize.x;
     canvas.style.height = docSize.y;
     // get the context
-    //let a = new Vector2(1,2);
-    //let b = new Vector2(3,3);
-    //console.log(a);
 
     let ctx = canvas.getContext('2d');
     return ctx ;
@@ -237,14 +228,14 @@ function setup() {
 }
 
 function createSegments(){
-    let vec = docSize;
+    let vec = new vec2();
+    vec = docSize.div(new vec2(2,2));
+
     let segs = [];
     let size = 100;
     let angle = 10;
     for(let i = 0; i<= amount; i++){
-        
-        segs.push(new Segment(vec.x,vec.y,angle,(size),segs[i-1]));
-
+        segs.push(new Segment(vec,angle,(size),segs[i-1]));
     }
     return segs;
 }
@@ -259,10 +250,10 @@ function draw(){
 
 
     for(let i = 0; i<= amount; i++){
-    //segments[i].drawline(ctx);
+    segments[i].drawline(ctx);
     segments[i].update();
     segments[0].reactToMouse(ctx);
-    //segments[i].rotate();
+    segments[i].rotate();
     }
    // console.log(segments);
     /*//DRAWING ON THE CANVAS
