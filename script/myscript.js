@@ -5,30 +5,32 @@
 
 //      My classes
 class vec2{
-    constructor(_x=0,_y=0){
+    constructor(_x=0,_y=0){//Creates Homemade 2D Vector
         this.x = _x;
         this.y = _y;
         this.isnormalized 
     }
-    length(){
+    mag(){// returns the Length of an object
         return Math.sqrt((this.x*this.x)+(this.y*this.y));// Satz des Petagruas
     }
-
-    normalize(){
-        let scale = this.length();
+    srq_Mag(){//Faster but only for comparisions
+        return (this.x*this.x)+(this.y*this.y);
+    }
+    normalize(){ // returns the length with a value between 0 and 1
+        let scale = this.mag();
         this.x /= scale;
         this.y /= scale;
         this.isnormalized = true;
     }
-    get is_normalized(){
+    get is_normalized(){ // returns if the Vector has been normalized yet TECHNICALLY STILL UNSTABLE
         return this.isnormalized;
     }
     // Add
-    add(_newvec = 0, _newvec2 = 0){
+    add(_newvec = 0, _newvec2 = 0){//Adding two vectors
         return new vec2((this.x + _newvec),(this.y + _newvec2));
 
     }
-    add(_newvec){
+    add(_newvec){//Adding two vectors
         if(_newvec instanceof vec2){
             return new vec2((this.x + _newvec.x),(this.y + _newvec.y));
         }
@@ -37,11 +39,11 @@ class vec2{
          }
     }
     // Subtract
-    sub(_newvec = 0, _newvec2 = 0){
+    sub(_newvec = 0, _newvec2 = 0){//substracting two vectors
         return new vec2((this.x - _newvec),(this.y - _newvec2));
     
     }
-    sub(_newvec){
+    sub(_newvec){//substracting two vectors
         if(_newvec instanceof vec2){
             return new vec2((this.x - _newvec.x),(this.y - _newvec.y));
         }
@@ -50,11 +52,11 @@ class vec2{
          }
     }
     // Multiply
-    dot(_newvec = 0, _newvec2 = 0){
+    multi(_newvec = 0, _newvec2 = 0){//multiplying two vectors
         return new vec2((this.x * _newvec),(this.y * _newvec2));
     
     }
-    dot(_newvec){
+    multi(_newvec){//multiplying two vectors
         if(_newvec instanceof vec2){
             return new vec2((this.x * _newvec.x),(this.y * _newvec.y));
         }
@@ -63,10 +65,10 @@ class vec2{
          }
     }
     // Divide
-    div(_newvec = 0, _newvec2 = 0){
+    div(_newvec = 0, _newvec2 = 0){//dividing two vectors
         return new vec2((this.x / _newvec),(this.y / _newvec2));
     }
-    div(_newvec){
+    div(_newvec){//dividing two vectors
         if(_newvec instanceof vec2){
             return new vec2((this.x / _newvec.x),(this.y / _newvec.y));
         }
@@ -74,192 +76,214 @@ class vec2{
             return new vec2((this.x / _newvec),(this.y / _newvec));
          }
     }
-    
+    //getter
+    get vec(){
+        return new vec2(this.x,this.y);
+    }
 }
 
 class Segment{
-    	origin = new vec2();
-        angChange = new vec2();
-        b = new vec2();
-        a = new vec2(0,0);
-        
+    #active = false;//For Mouse React
         /** 
-        @param {vec2} _a - the vector
+        @param {vec2} _a - the vector2
         */
-    constructor(_a = new vec2(0,0), _angle = 90, _len = 100, _parent = null){
-
-        if (_parent instanceof Segment){ //Following Segments
+    constructor(_a, _angle = 90, _len = 100, _parent){
+        console.log(_parent instanceof Segment);
+        if (_parent instanceof Segment){ //Following Segments, that will also be linked to the Main one, 
+                                        // Thats the reason it mostly stores the parents data
             this.parent = _parent;     
             this.name = this.parent.name +1;
             this.a = this.parent.b;
             this.angle = (Math.PI / 180)*_angle + this.parent.angle; // Converts the angle to degrees
-            this.len = _len;
-
-               
+            this.len = _len;  
+            this.origin = this.parent.origin; 
         }
-        else {//First Segment
+        else {//First Segment ---- Main one
             this.name = 0;
+            this.origin = _a;
             this.a = _a;
-            //initialize origin
-            this.origin = this.a;
-
             this.angle = -(Math.PI / 180)*_angle; // Converts the angle to degrees
             this.len = _len;
             this.parent = _parent;
         }
-        this.calc_b();
-        console.log(this);
+        this.calc_b();//Always use this after chaning the angle
+
 
 
     }
-    //      Methods
-    calc_b(){
+    //Methods
 
-        this.angChange.x = this.len* Math.cos(this.angle);
-        this.angChange.y = this.len* Math.sin(this.angle);
-        this.b = this.a.add(this.angChange);
+    calc_b(){//uses angle and length to determine B
+        let ang = new vec2();
+        ang.x = this.len* Math.cos(this.angle);
+        ang.y = this.len* Math.sin(this.angle);
+        this.b = this.a.add(ang);
         
     }
 
-    rotate(){
-        if(this.angle>45)this.angle += Math.sin(this.angle) * 1.4;
-        if(this.angle<135)this.angle += Math.sin(Math.PI*700) * 1.4;
+    rotate(){//NO IDEA
+        this.selfangle = -Math.sin(Math.PI / 20);
         this.calc_b();
     }
 
-    update(){
-        if(this.parent != null){
+    update(){//Keep the children linked to their Parents
+
+        if(this.parent){
             this.parent.calc_b();
             this.a = this.parent.b;
-            this.angle = this.parent.angle * this.angle;
-
+            this.angle = this.parent.angle;
         }
+
         this.calc_b();
     }
 
-    
-    drawline(ctx){ 
-        this.calc_b();
-        //ctx.strokeStyle = `rgba(${this.angle*100},${this.angle*100},${this.angle*100},1)`;
-        ctx.beginPath();
-        ctx.moveTo(this.a.x,this.a.y);
-        ctx.lineTo(this.b.x,this.b.y);
-        ctx.stroke();
+    spring(){//for a smoother response ;; ITS STILL MISSING THE BOUNCYNESS
+        let k = .05, vel = new vec2(0,0), f;
+
+        f = this.a.sub(this.origin);
+        let x = f.mag();
+        f.normalize();
+        f = f.multi(-1*k*x);
+        vel = vel.add(f);
+        this.a = this.a.add(vel.multi(1));
 
     }
-
-    react_to_mouse(ctx){
-        ctx.fillRect(this.origin.x,this.origin.y,5,5);
-        if(this.parent == null){
-            let dir, placeholder = new vec2(), limit = 60;
-
-            dir = this.a.sub(mouse);//substract multiple vectors to create directional vector
-            
-            if(this.a.x > mouse.x - limit && this.a.x < mouse.x + limit &&
-            this.a.y > mouse.y - limit && this.a.y < mouse.y + limit){
-                ctx.strokeStyle = "red";
-                dir.normalize();
-               // console.log(`B:${this.a.y}, B:${this.a.x}, C:${this.origin.x} B:${this.origin.y}`);
-                //i = this.calcDistance(this.a.x,this.a.y,this.origin.x,this.origin.y);
-                //if( i <= limit){
+    drawline(){ // visualizes everything at some point these will be rendered as rectangles
         
-                console.log(this.a.length()-this.origin.length());
+        this.calc_b();
+        ctx.fillRect(this.origin.x,this.origin.y,10,10);
+        ctx.beginPath();//  very important before drawing a line
+        ctx.moveTo(this.a.x,this.a.y);//                      :
+        ctx.lineTo(this.b.x,this.b.y);//                      :
+        ctx.stroke();//      very important after drawing a line
 
-                if(this.origin.length()-this.a.length() <= limit){
-                    this.a.x = this.a.x + (limit*dir.x);//move point along circle using directional vetor
-                    this.a.y = this.a.y + (limit*dir.y);
+    }
 
-                }
-                // FIX: IS NEVER CALLED!!!!!
-                   this.a.x = 600;
-                   this.a.y = 600;
+    react_To_Mouse(){
+        if(this.parent == null){//only work on the base Segment AKA the Main one
+            let limit = 50, dir = this.a.sub(mouse);//LIMIT: raduis for the collisiondetection; DIR: substract multiple vectors to create a directional vector
+            
+            if(this.origin.x > mouse.x - limit && this.origin.x < mouse.x + limit &&
+            this.origin.y > mouse.y - limit && this.origin.y < mouse.y + limit){//check if a given object is in a given space,, MAYBE ADD ARRAY Coordinates * docsize/amount, to reduze number of calls?
+                this.calc_b();
+                ctx.strokeStyle = "red"; // when in ounding box turn red
+                dir.normalize();
                 
-                
+                this.a = this.origin.add(dir.multi(limit-10)); // segment evading the mouse+radius
+               
+                this.#active = true;//This is used to give the spring some downtime, to come back ,, MAYBE use spring() internal loop
             }
-            // IDEA: USE DIR AS ANGLE FOR FIRST SEGMENT; TO CHECK FOWARD KINEMATIC
+
+            if(this.#active == true){
+                if(this.a == this.origin)
+                {
+                    this.#active = false;
+                }
+                this.spring();
+            }
+
+            //          Some drawings for my human eye, to see the impact of my changes in the code
             ctx.save();
             ctx.beginPath();
             ctx.lineWidth= 3;
             ctx.arc(mouse.x, mouse.y, limit, 0,  2 * Math.PI);
-            ctx.moveTo(this.a.x,this.a.y);
-            ctx.lineTo(this.a.x+dir.x,this.a.y+dir.y);
             ctx.stroke();
             ctx.restore();
-        }
+
+        }          
     }   
+
 }
 
+
+
+// My constants
+const canvas = document.getElementById('canvas'); // canvas
+const docSize  = new vec2(canvas.width, canvas.height);
+var ctx = canvas.getContext("2d");
+
+//easier Access to width and height of the canvas
+
+// My variables
+var cRect = canvas.getBoundingClientRect();
+var mouse = new vec2(), prev = new vec2();
+//Segment Setup
+var amount = 3, segamount = 1; // amount of Segments, Length of Segments
+
+var tiles = createSegments();
+// Mouse Position
+
 //       Event Listenrer
-addEventListener("load", setup);
-addEventListener("resize", update_box);
-document.onmousemove = function(e){ // get mouse position
+
+document.onload = function(e){ // When the page is finished loading, call this function
+    if (!canvas.getContext) {
+        return;
+    }
+    canvas.style.width = docSize.x; // sync the javascript h/w with the css h/w
+    canvas.style.height = docSize.y;
+    // get the context
+}
+
+document.onmousemove = function(e){ // get and update mouse position
     mouse.x = e.clientX-cRect.left;
     mouse.y = e.clientY-cRect.top;
+}
+
+window.onresize = function(e){//When the user Resizes the Browserwindow, fetch the bounding box again
+    cRect = canvas.getBoundingClientRect(); 
 }
 
 // Loop
 setInterval(draw,20);
 
-
-// My constants
-const canvas = document.getElementById('canvas'); // canvas
-const docSize  = new vec2(canvas.width, canvas.height);//easier Access to width and height of the canvas
-
-// My variables
-let cRect = canvas.getBoundingClientRect();
-
-//Segment Setup
-var amount = 3;
-var segments = createSegments();
-// Mouse Position
-var mouse = new vec2(), prev = new vec2();
-
-
-
-
-
 // My Functions
 
 function createSegments(){
-    let vec = new vec2();
-    vec = docSize.div(2);
-    let segs = [];
-    let size = 100;
-    let angle = 31.415;
-    for(let i = 0; i< amount; i++){
-        segs.push(new Segment(vec,angle,size,segs[i-1]));
+
+    let vecsteps = docSize.div(amount+1);//Important for gridbased positional data
+    let segs = [amount];// Array that stores all the information
+    let len = 100; // length of the segments, so far not decreaseing with each itearation
+    let angle;
+
+    for(let x = 0; x < amount; x++){// Loop for x axis
+        segs[x] = Array(amount);  // Make array 2 Diemsional to store the grid 
+        angle = Math.random()*(100-80)+80; // Random Angle
+        for(let y = 0; y < amount; y++){// Loop for y Axis
+            for(let i = 0; i < segamount; i++){ //Loop for interation , TECHNIALLY Z AXIS
+                segs[x][y] = Array(segamount); // Make array 3 Dimensional, to store the Segment Arrays
+                segs[x][y][i] = new Segment(new vec2(vecsteps.x *(x+1),vecsteps.y *(y+1)),angle,len,segs[x][y][i-1]); // Still a bug with the parent entity, for some reason always null
+                if(i+1 == segamount){segs[x][y][i] = new Segment(new vec2(vecsteps.x *(x),vecsteps.y *(y)),angle,len,segs[x][y][(i-1)]);}  
+            }   
+        }
+
     }
+        console.table(segs); // FUCKING DEBUGGING
+        
     return segs;
 }
 
-function setup() {
-    if (!canvas.getContext) {
-        return;
-    }
-    canvas.style.width = docSize.x;
-    canvas.style.height = docSize.y;
-    // get the context
-
-    let ctx = canvas.getContext('2d');
-    return ctx ;
-
-}
 
 function draw(){
 
-    let ctx = setup();
-    ctx.clearRect(0,0, docSize.x,docSize.y);
+
+    //ctx.clearRect(0,0, docSize.x,docSize.y);
     ctx.strokeStyle = "#3f9f3f";
     ctx.lineWidth = 10;
+   
+    for(let posx = 0; posx < amount; posx++){
+        for(let posy = 0; posy < amount; posy++){
+            for(let i = 0; i < segamount; i++){
+                tiles[posx][posy][0].react_To_Mouse();
+                   // tiles[posx][posy][i].drawline();
 
-
-
-    for(let i = 0; i < amount; i++){
-    segments[i].drawline(ctx);
-    segments[i].update();
-    segments[i].react_to_mouse(ctx);
-    segments[i].rotate();
+            }
+        }
     }
+        //tiles[a][i].react_To_Mouse(ctx);
+        //tiles[a][i].drawline(ctx);
+        //tiles[a][i].update();
+        //tiles[a][i].rotate();
+    
    // console.log(segments);
     /*//DRAWING ON THE CANVAS
     ctx.save();
@@ -275,9 +299,3 @@ function draw(){
     ctx.restore();
     */
 }
-
-
-function update_box(){
-    cRect = canvas.getBoundingClientRect(); 
-}
-
