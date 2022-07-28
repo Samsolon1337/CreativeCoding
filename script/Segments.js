@@ -36,7 +36,7 @@ export class segment{
         ang.x = this.len* Math.cos(this.angle);
         ang.y = this.len* Math.sin(this.angle);
         let dir = this.a.sub(ang);
-        this.b = this.a.multi(dir);
+        this.b = this.a.add(ang);
 
 
     }
@@ -44,17 +44,14 @@ export class segment{
     calc_C(){
         this.c = new vec2();
         let ang = new vec2();
-        let dir = ang;
         ang.x = this.len* Math.cos(this.angle);
         ang.y = this.len* Math.sin(this.angle);
-        dir = ang.sub(this.a);
-        dir.normalize();
-        this.b = this.origin.add(ang).multi(dir);
+        this.b = this.a.add(ang);
         //seg.origin.add(dir.multi(limit/3));
-        let r = ang.mag();
+        let r = this.b.mag();
         //this.c =  this.a.add((ang.div(360).multi(Math.PI*r/2)));
-        this.c.x = this.a.x+(ang.x/360)*Math.cos(r);
-        this.c.y = this.a.y+(ang.y/360)*Math.sin(r);
+        this.c.x = this.a.x+(ang.x/360)*Math.cos(r/2);
+        this.c.y = this.a.y+(ang.y/360)*Math.sin(r/2);
     }
         /*       console.log(this.c);
         this.calc_B();

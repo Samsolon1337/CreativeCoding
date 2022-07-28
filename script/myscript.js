@@ -74,13 +74,12 @@ function createSegments(){
 }
 function create_A_Segments(){
     let segs= [amount];
-    let len = 300, decline = .65, angle;
+    let len = 300, decline = .5, angle;
     for(let i = 0; i < amount; i++){
 
         segs[i] = new segment(new vec2(600,600),90,len,segs[i-1]);
         len *= decline ;
     }
-    console.table(segs);
     return segs
 
 }
@@ -154,8 +153,10 @@ function draw(){
                draw_Segment(seg[i]);
                react_To_Mouse(seg[i]);
 
+
             }
-        //}
+            //console.log(`A: ${seg[1].c.x} / ${seg[1].c.y}, B: ${seg[2].c.x} / ${seg[2].c.y}`);
+            //}
     //}
     
         //tiles[a][i].react_To_Mouse(ctx);
