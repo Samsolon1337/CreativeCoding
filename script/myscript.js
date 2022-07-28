@@ -1,19 +1,10 @@
 import {segment} from "./Segments.js";
 import {vec2} from "./Vector2.js";
 
-
-
-
 //TODO: Convert segments into squares
 //      Overlap them
 //      Give them color
 //      convert movement on y and y also to z 
-
-//      My classes
-
-
-
-
 
 // My constants
 const canvas = document.getElementById('canvas'); // canvas
@@ -26,9 +17,10 @@ var ctx = canvas.getContext("2d");
 var cRect = canvas.getBoundingClientRect();
 var mouse = new vec2()// Mouse Position
 //Segment Setup
-var amount = 25, segamount = 1; // amount of Segments, Length of Segments
+var amount = 5, segamount = 1; // amount of Segments, Length of Segments
 
-var tiles = createSegments();
+//var tiles = createSegments();
+var seg = create_A_Segments();
 
 
 //       Event Listenrer
@@ -55,7 +47,6 @@ window.onresize = function(e){//When the user Resizes the Browserwindow, fetch t
 setInterval(draw,20);
 
 // My Functions
-
 function createSegments(){
     let vecsteps = docSize.div(amount+1);//Important for gridbased positional data
     let segs = [amount];// Array that stores all the information
@@ -78,25 +69,88 @@ function createSegments(){
     } //console.log(segs) // FUCKING DEBUGGING  
     return segs;
 }
+function create_A_Segments(){
+    let segs= [amount];
+    let len = 100, decline = .6, angle;
+    for(let i = 0; i < amount; i++){
 
+        segs[i] = new segment(new vec2(600,600),60,len,segs[i-1]);
+        len *= decline ;
+    }
+    //console.table(segs);
+    return segs
+
+}
+function spring(seg){//for a smoother response ;; ITS STILL MISSING THE BOUNCYNESS
+    let k = .05, vel = new vec2(0,0), f;
+
+    f = seg.a.sub(seg.origin);
+    let x = f.mag();
+    f.normalize();
+    f = f.multi(-1*k*x);
+    vel = vel.add(f);
+    seg.a = seg.a.add(vel.multi(5));
+
+}
+
+
+function react_To_Mouse(seg){
+    if(seg.parent == null){//only work on the base Segment AKA the Main one
+        let limit = 500, dir = seg.a.sub(mouse);//LIMIT: raduis for the collisiondetection; DIR: substract multiple vectors to create a directional vector
+        
+        if(seg.origin.x > mouse.x - limit && seg.origin.x < mouse.x + limit &&
+        seg.origin.y < mouse.y + limit && seg.origin.y > mouse.y - limit){//check if a given object is in a given space,, MAYBE ADD ARRAY Coordinates * docsize/amount, to reduze number of calls?
+            seg.calc_C();
+            //ctx.strokeStyle = "red"; // when in ounding box turn red
+            dir.normalize();
+            
+            seg.a = seg.origin.add(dir.multi(limit/3)); // segment evading the mouse+radius
+           
+            seg.active = true;//This is used to give the spring some downtime, to come back ,, MAYBE use spring() internal loop
+        }
+
+        if(seg.active == true){
+            if(seg.a == seg.origin)
+            {
+                seg.active = false;
+            }
+            spring(seg);
+        }
+        //seg.update();
+    }
+}
+function draw_Segment(seg){ // visualizes everything at some point these will be rendered as rectangles
+        
+    seg.calc_C();
+    //console.log(seg.c)
+    ctx.fillRect(seg.origin.x,seg.origin.y,10,10);
+    ctx.strokeRect(seg.c.x-seg.len/2,seg.c.y-seg.len/2,seg.len,seg.len);
+    ctx.strokeRect(seg.a.x,seg.a.y,10,10);
+    ctx.save();
+    ctx.fillStyle = "red";
+    ctx.fillRect(seg.c.x,seg.c.y,10,10);
+    ctx.restore();
+}
 
 function draw(){
 
 
     ctx.clearRect(0,0, docSize.x,docSize.y);
     ctx.strokeStyle = "#3f9f3f";
-    ctx.lineWidth = 10;
-    /*
-    for(let posx = 0; posx < amount; posx++){
-        for(let posy = 0; posy < amount; posy++){
-            for(let i = 0; i < segamount; i++){
 
-               // tiles[posx][posy][i].rotate();
+    
+    //for(let posx = 0; posx < amount; posx++){
+        //for(let posy = 0; posy < amount; posy++){
+            for(let i = 0; i < amount; i++){
+
+               //tiles[posx][posy][i].drawline();
+               draw_Segment(seg[0]);
+               react_To_Mouse(seg[0]);
 
             }
-        }
-    }
-    */
+        //}
+    //}
+    
         //tiles[a][i].react_To_Mouse(ctx);
         //tiles[a][i].drawline(ctx);
         //tiles[a][i].update();

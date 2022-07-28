@@ -1,17 +1,15 @@
 import {vec2} from "./Vector2.js";
 
 export class segment{
-    #active = false;//For Mouse React
         /** 
         @param {vec2} _a - the vector2
         */
     constructor(_a, _angle = 90, _len = 100, _parent){
         console.log(_parent instanceof segment);
         if (_parent instanceof segment){ //Following Segments, that will also be linked to the Main one, 
-                                        // Thats the reason it mostly stores the parents data            this.a = _parent.b;
-            
+                                        // Thats the reason it mostly stores the parents data
             this.id = _parent.id +1;
-            this.a = _parent.b;
+            this.a = _parent.c;
             this.origin = _parent.origin; 
             this.parent = _parent;     
             this.angle = (Math.PI / 180)*_angle + _parent.angle; // Converts the angle to degrees
@@ -26,46 +24,71 @@ export class segment{
             this.angle = -(Math.PI / 180)*_angle; // Converts the angle to degrees
             this.len = _len;
         }
-        this.calc_b();//Always use this after chaning the angle
+        this.calc_C();//Always use this after chaning the angle
 
 
 
     }
     //Methods
 
-    calc_b(){//uses angle and length to determine B
+    calc_B(){//uses angle and length to determine B
         let ang = new vec2();
         ang.x = this.len* Math.cos(this.angle);
         ang.y = this.len* Math.sin(this.angle);
-        this.b = this.a.add(ang);
-        
+        let dir = this.a.sub(ang);
+        this.b = this.a.multi(dir);
+
+
     }
+    
+    calc_C(){
+
+        let ang = new vec2();
+        ang.x = this.len* Math.cos(this.angle);
+        ang.y = this.len* Math.sin(this.angle);
+        let dir = ang.sub(this.a);
+        dir.normalize();
+        this.b = this.a.add(ang).multi(dir);
+
+        let r = ang.mag();
+        this.c = new vec2();
+        this.c.x = this.a.x+(ang.x/360)*Math.PI* (r/2);
+        this.c.y = this.a.y+(ang.y/360)*Math.PI* (r/2);
+    }
+        /*
+        console.log(this.c);
+        this.calc_B();
+        let newa = new vec2(this.origin.x, this.b.y); 
+        console.log(this.a,this.b,newa);
+      //  let alen = this.origin.sub(newa);
+        //newa = newa.sub(alen);
+        let newb = newa.sub(this.b);
+        let blen = newa.sub(newb);
+        //console.log(this.b,this.a);
+        let ang = new vec2();
+        ang.x = blen* Math.cos(this.angle);
+        ang.y = blen* Math.sin(this.angle);
+        this.c = this.b.add(blen);
+    }
+    */
     /*
     rotate(){//NO IDEA
         this.angle += Math.sin(Math.PI /(this.a.x)*10);
-        this.calc_b();
+        this.calc_B();
     }
     */
     update(){//Keep the children linked to their Parents
 
         if(this.parent){
-            this.parent.calc_b();
-            this.a = this.parent.b;
+            this.parent.calc_C();
+            this.a = this.parent.c;
             this.angle = this.parent.angle;
         }
 
-        this.calc_b();
+        this.calc_C();
     }
-    drawline(){ // visualizes everything at some point these will be rendered as rectangles
-        
-        this.calc_b();
-        //ctx.fillRect(this.origin.x,this.origin.y,10,10);
-        ctx.beginPath();//  very important before drawing a line
-        ctx.moveTo(this.a.x,this.a.y);//                      :
-        ctx.lineTo(this.b.x,this.b.y);//                      :
-        ctx.stroke();//      very important after drawing a line
-    }
-    
+
+
     /*
     spring(){//for a smoother response ;; ITS STILL MISSING THE BOUNCYNESS
         let k = .05, vel = new vec2(0,0), f;
@@ -86,7 +109,7 @@ export class segment{
             
             if(this.origin.x > mouse.x - limit && this.origin.x < mouse.x + limit &&
             this.origin.y < mouse.y + limit && this.origin.y > mouse.y - limit){//check if a given object is in a given space,, MAYBE ADD ARRAY Coordinates * docsize/amount, to reduze number of calls?
-                this.calc_b();
+                this.calc_B();
                 //ctx.strokeStyle = "red"; // when in ounding box turn red
                 dir.normalize();
                 
