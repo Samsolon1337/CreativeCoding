@@ -42,7 +42,7 @@ export class segment{
     }
     
     calc_C(){
-
+        this.c = new vec2();
         let ang = new vec2();
         let dir = ang;
         ang.x = this.len* Math.cos(this.angle);
@@ -52,12 +52,11 @@ export class segment{
         this.b = this.origin.add(ang).multi(dir);
         //seg.origin.add(dir.multi(limit/3));
         let r = ang.mag();
-        this.c = new vec2();
-        this.c.x = this.a.x+(ang.x/360)*Math.PI* (r/2);
-        this.c.y = this.a.y+(ang.y/360)*Math.PI* (r/2);
+        //this.c =  this.a.add((ang.div(360).multi(Math.PI*r/2)));
+        this.c.x = this.a.x+(ang.x/360)*Math.cos(r);
+        this.c.y = this.a.y+(ang.y/360)*Math.sin(r);
     }
-        /*
-        console.log(this.c);
+        /*       console.log(this.c);
         this.calc_B();
         let newa = new vec2(this.origin.x, this.b.y); 
         console.log(this.a,this.b,newa);
@@ -86,7 +85,7 @@ export class segment{
             this.angle = this.parent.angle;
         }
 
-        //this.calc_C();
+        this.calc_C();
     }
 
 

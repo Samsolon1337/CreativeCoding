@@ -17,10 +17,11 @@ var ctx = canvas.getContext("2d");
 var cRect = canvas.getBoundingClientRect();
 var mouse = new vec2()// Mouse Position
 //Segment Setup
-var amount = 3, segamount = 1; // amount of Segments, Length of Segments
+var amount = 4, segamount = 1; // amount of Segments, Length of Segments
 
 //var tiles = createSegments();
 var seg = create_A_Segments();
+var mouseEnter = false;
 
 
 //       Event Listenrer
@@ -73,13 +74,13 @@ function createSegments(){
 }
 function create_A_Segments(){
     let segs= [amount];
-    let len = 100, decline = .5, angle;
+    let len = 300, decline = .65, angle;
     for(let i = 0; i < amount; i++){
 
-        segs[i] = new segment(new vec2(600,600),60,len,segs[i-1]);
+        segs[i] = new segment(new vec2(600,600),90,len,segs[i-1]);
         len *= decline ;
     }
-    //console.table(segs);
+    console.table(segs);
     return segs
 
 }
@@ -98,7 +99,7 @@ function spring(seg){//for a smoother response ;; ITS STILL MISSING THE BOUNCYNE
 
 function react_To_Mouse(seg){
     if(seg.parent == null){//only work on the base Segment AKA the Main one
-        let limit = 500, direction = seg.a.sub(mouse);//LIMIT: raduis for the collisiondetection; DIR: substract multiple vectors to create a directional vector
+        let limit = 100, direction = seg.a.sub(mouse);//LIMIT: raduis for the collisiondetection; DIR: substract multiple vectors to create a directional vector
         
         if(seg.origin.x > mouse.x - limit && seg.origin.x < mouse.x + limit &&
         seg.origin.y < mouse.y + limit && seg.origin.y > mouse.y - limit){//check if a given object is in a given space,, MAYBE ADD ARRAY Coordinates * docsize/amount, to reduze number of calls?
@@ -106,15 +107,15 @@ function react_To_Mouse(seg){
             //ctx.strokeStyle = "red"; // when in ounding box turn red
             direction.normalize();
             
-            seg.a = seg.origin.add(direction.multi(limit/3)); // segment evading the mouse+radius
+            seg.a = seg.origin.add(direction.multi(limit)); // segment evading the mouse+radius
            
-            seg.active = true;//This is used to give the spring some downtime, to come back ,, MAYBE use spring() internal loop
+            mouseEnter = true;//This is used to give the spring some downtime, to come back ,, MAYBE use spring() internal loop
         }
 
-        if(seg.active == true){
+        if(mouseEnter == true){
             if(seg.a == seg.origin)
             {
-                seg.active = false;
+                mouseEnter = false;
             }
             spring(seg);
         }
@@ -127,6 +128,7 @@ function draw_Segment(seg){ // visualizes everything at some point these will be
     
     //console.log(seg.c)
     ctx.fillRect(seg.origin.x,seg.origin.y,10,10);
+    //ctx.strokeRect(seg.c.x,seg.c.y,seg.len,seg.len);
     ctx.strokeRect(seg.c.x-(seg.len/2),seg.c.y-(seg.len/2),seg.len,seg.len);
     /*ctx.strokeRect(seg.a.x,seg.a.y,10,10);
     ctx.save();
