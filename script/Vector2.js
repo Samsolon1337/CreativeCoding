@@ -1,5 +1,5 @@
 export class vec2{
-    
+    #sub=false;
     constructor(_x=0,_y=0){//Creates Homemade 2D Vector
         this.x = _x;
         this.y = _y;
@@ -25,6 +25,7 @@ export class vec2{
         return new vec2((this.x + newVecX),(this.y + newVecY));
 
     }
+
     add(newVec){//Adding two vectors
         if(newVec instanceof vec2){
             return new vec2((this.x + newVec.x),(this.y + newVec.y));
@@ -40,7 +41,7 @@ export class vec2{
     }
     sub(newVec){//substracting two vectors
         if(newVec instanceof vec2){
-            return this.add(newVec.multi(-1));
+        return this.add(newVec.multi(-1));
         }
         if(typeof(newVec) === "number"){
             return this.add(-newVec);

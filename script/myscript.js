@@ -17,7 +17,7 @@ var ctx = canvas.getContext("2d");
 var cRect = canvas.getBoundingClientRect();
 var mouse = new vec2()// Mouse Position
 //Segment Setup
-var amount = 5, segamount = 1; // amount of Segments, Length of Segments
+var amount = 3, segamount = 1; // amount of Segments, Length of Segments
 
 //var tiles = createSegments();
 var seg = create_A_Segments();
@@ -73,7 +73,7 @@ function createSegments(){
 }
 function create_A_Segments(){
     let segs= [amount];
-    let len = 100, decline = .6, angle;
+    let len = 100, decline = .5, angle;
     for(let i = 0; i < amount; i++){
 
         segs[i] = new segment(new vec2(600,600),60,len,segs[i-1]);
@@ -124,14 +124,16 @@ function react_To_Mouse(seg){
 function draw_Segment(seg){ // visualizes everything at some point these will be rendered as rectangles
         
     seg.calc_C();
+    
     //console.log(seg.c)
     ctx.fillRect(seg.origin.x,seg.origin.y,10,10);
-    ctx.strokeRect(seg.c.x-seg.len/2,seg.c.y-seg.len/2,seg.len,seg.len);
-    ctx.strokeRect(seg.a.x,seg.a.y,10,10);
+    ctx.strokeRect(seg.c.x-(seg.len/2),seg.c.y-(seg.len/2),seg.len,seg.len);
+    /*ctx.strokeRect(seg.a.x,seg.a.y,10,10);
     ctx.save();
     ctx.fillStyle = "red";
     ctx.fillRect(seg.c.x,seg.c.y,10,10);
     ctx.restore();
+    */
 }
 
 function draw(){
@@ -146,8 +148,9 @@ function draw(){
             for(let i = 0; i < amount; i++){
 
                //tiles[posx][posy][i].drawline();
-               draw_Segment(seg[0]);
-               //react_To_Mouse(seg[0]);
+               seg[i].update();
+               draw_Segment(seg[i]);
+               react_To_Mouse(seg[i]);
 
             }
         //}

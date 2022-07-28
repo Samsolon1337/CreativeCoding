@@ -44,11 +44,12 @@ export class segment{
     calc_C(){
 
         let ang = new vec2();
+        let dir = ang;
         ang.x = this.len* Math.cos(this.angle);
         ang.y = this.len* Math.sin(this.angle);
-        //var dir = ang.sub(this.a);
-        //dir.normalize();
-        this.b = this.a.add(ang);//.multi(dir);
+        dir = ang.sub(this.a);
+        dir.normalize();
+        this.b = this.origin.add(ang).multi(dir);
         //seg.origin.add(dir.multi(limit/3));
         let r = ang.mag();
         this.c = new vec2();
@@ -85,7 +86,7 @@ export class segment{
             this.angle = this.parent.angle;
         }
 
-        this.calc_C();
+        //this.calc_C();
     }
 
 
