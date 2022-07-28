@@ -46,6 +46,8 @@ window.onresize = function(e){//When the user Resizes the Browserwindow, fetch t
 // Loop
 setInterval(draw,20);
 
+
+
 // My Functions
 function createSegments(){
     let vecsteps = docSize.div(amount+1);//Important for gridbased positional data
@@ -96,15 +98,15 @@ function spring(seg){//for a smoother response ;; ITS STILL MISSING THE BOUNCYNE
 
 function react_To_Mouse(seg){
     if(seg.parent == null){//only work on the base Segment AKA the Main one
-        let limit = 500, dir = seg.a.sub(mouse);//LIMIT: raduis for the collisiondetection; DIR: substract multiple vectors to create a directional vector
+        let limit = 500, direction = seg.a.sub(mouse);//LIMIT: raduis for the collisiondetection; DIR: substract multiple vectors to create a directional vector
         
         if(seg.origin.x > mouse.x - limit && seg.origin.x < mouse.x + limit &&
         seg.origin.y < mouse.y + limit && seg.origin.y > mouse.y - limit){//check if a given object is in a given space,, MAYBE ADD ARRAY Coordinates * docsize/amount, to reduze number of calls?
             seg.calc_C();
             //ctx.strokeStyle = "red"; // when in ounding box turn red
-            dir.normalize();
+            direction.normalize();
             
-            seg.a = seg.origin.add(dir.multi(limit/3)); // segment evading the mouse+radius
+            seg.a = seg.origin.add(direction.multi(limit/3)); // segment evading the mouse+radius
            
             seg.active = true;//This is used to give the spring some downtime, to come back ,, MAYBE use spring() internal loop
         }
@@ -145,7 +147,7 @@ function draw(){
 
                //tiles[posx][posy][i].drawline();
                draw_Segment(seg[0]);
-               react_To_Mouse(seg[0]);
+               //react_To_Mouse(seg[0]);
 
             }
         //}

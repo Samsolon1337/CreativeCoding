@@ -46,10 +46,10 @@ export class segment{
         let ang = new vec2();
         ang.x = this.len* Math.cos(this.angle);
         ang.y = this.len* Math.sin(this.angle);
-        let dir = ang.sub(this.a);
-        dir.normalize();
-        this.b = this.a.add(ang).multi(dir);
-
+        //var dir = ang.sub(this.a);
+        //dir.normalize();
+        this.b = this.a.add(ang);//.multi(dir);
+        //seg.origin.add(dir.multi(limit/3));
         let r = ang.mag();
         this.c = new vec2();
         this.c.x = this.a.x+(ang.x/360)*Math.PI* (r/2);

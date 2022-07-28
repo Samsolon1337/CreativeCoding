@@ -21,54 +21,54 @@ export class vec2{
         return this.isnormalized;
     }
     // Add
-    add(_newvec = 0, _newvec2 = 0){//Adding two vectors
-        return new vec2((this.x + _newvec),(this.y + _newvec2));
+    add(newVecX = 0, newVecY = 0){//Adding two vectors
+        return new vec2((this.x + newVecX),(this.y + newVecY));
 
     }
-    add(_newvec){//Adding two vectors
-        if(_newvec instanceof vec2){
-            return new vec2((this.x + _newvec.x),(this.y + _newvec.y));
+    add(newVec){//Adding two vectors
+        if(newVec instanceof vec2){
+            return new vec2((this.x + newVec.x),(this.y + newVec.y));
         }
-        if(typeof(_newvec) === "number"){
-            return new vec2((this.x + _newvec),(this.y + _newvec));
+        if(typeof(newVec) === "number"){
+            return new vec2((this.x + newVec),(this.y + newVec));
          }
     }
     // Subtract
-    sub(_newvec = 0, _newvec2 = 0){//substracting two vectors
-        return new vec2((this.x - _newvec),(this.y - _newvec2));
+    sub(newVecX = 0, newVecY = 0){//substracting two vectors
+        return this.add(-newVecX,-newVecY);
     
     }
-    sub(_newvec){//substracting two vectors
-        if(_newvec instanceof vec2){
-            return new vec2((this.x - _newvec.x),(this.y - _newvec.y));
+    sub(newVec){//substracting two vectors
+        if(newVec instanceof vec2){
+            return this.add(newVec.multi(-1));
         }
-        if(typeof(_newvec) === "number"){
-            return new vec2((this.x - _newvec),(this.y - _newvec));
+        if(typeof(newVec) === "number"){
+            return this.add(-newVec);
          }
     }
     // Multiply
-    multi(_newvec = 0, _newvec2 = 0){//multiplying two vectors
-        return new vec2((this.x * _newvec),(this.y * _newvec2));
+    multi(newVecX = 0, newVecY = 0){//multiplying two vectors
+        return new vec2((this.x * newVecX),(this.y * newVecY));
     
     }
-    multi(_newvec){//multiplying two vectors
-        if(_newvec instanceof vec2){
-            return new vec2((this.x * _newvec.x),(this.y * _newvec.y));
+    multi(newVec){//multiplying two vectors
+        if(newVec instanceof vec2){
+            return new vec2((this.x * newVec.x),(this.y * newVec.y));
         }
-        if(typeof(_newvec) === "number"){
-            return new vec2((this.x * _newvec),(this.y * _newvec));
+        if(typeof(newVec) === "number"){
+            return new vec2((this.x * newVec),(this.y * newVec));
          }
     }
     // Divide
-    div(_newvec = 0, _newvec2 = 0){//dividing two vectors
-        return new vec2((this.x / _newvec),(this.y / _newvec2));
+    div(newVecX = 0, newVecY = 0){//dividing two vectors
+        return new vec2((this.x / newVecX),(this.y / newVecY));
     }
-    div(_newvec){//dividing two vectors
-        if(_newvec instanceof vec2){
-            return new vec2((this.x / _newvec.x),(this.y / _newvec.y));
+    div(newVec){//dividing two vectors
+        if(newVec instanceof vec2){
+            return new vec2((this.x / newVec.x),(this.y / newVec.y));
         }
-        if(typeof(_newvec) === "number"){
-            return new vec2((this.x / _newvec),(this.y / _newvec));
+        if(typeof(newVec) === "number"){
+            return new vec2((this.x / newVec),(this.y / newVec));
          }
     }
     //getter
