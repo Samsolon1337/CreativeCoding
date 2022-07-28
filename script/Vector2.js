@@ -6,7 +6,7 @@ export class vec2{
         this.isnormalized 
     }
     mag(){// returns the Length of an object
-        return Math.sqrt((this.x*this.x)+(this.y*this.y));// Satz des Petagruas
+        return Math.sqrt(this.srq_Mag());// Satz des Petagruas
     }
     srq_Mag(){//Faster but only for comparisions
         return (this.x*this.x)+(this.y*this.y);

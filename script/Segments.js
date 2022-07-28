@@ -17,10 +17,10 @@ export class segment{
 
         }
         else {//First Segment ---- Main one
-            this.id = 0;
+            this.id = 1;
             this.a = _a;
             this.origin = _a;
-            this.parent = _parent;
+            this.parent = null;
             this.angle = -(Math.PI / 180)*_angle; // Converts the angle to degrees
             this.len = _len;
         }
@@ -44,14 +44,17 @@ export class segment{
     calc_C(){
         this.c = new vec2();
         let ang = new vec2();
-        ang.x = this.len* Math.cos(this.angle);
-        ang.y = this.len* Math.sin(this.angle);
-        this.b = this.a.add(ang);
-        //seg.origin.add(dir.multi(limit/3));
-        let r = this.b.mag();
+
         //this.c =  this.a.add((ang.div(360).multi(Math.PI*r/2)));
-        this.c.x = this.a.x+(ang.x/360)*Math.cos(r/2);
-        this.c.y = this.a.y+(ang.y/360)*Math.sin(r/2);
+
+            ang.x = this.len* Math.cos(this.angle);
+            ang.y = this.len* Math.sin(this.angle);
+            this.b = this.a.add(ang);
+            //seg.origin.add(dir.multi(limit/3));
+            let r = this.b.mag();
+            this.c.x = this.a.x+(ang.x/360)+2*Math.cos(r);
+            this.c.y = this.a.y+(ang.y/360)+2*Math.sin(r);
+    
     }
         /*       console.log(this.c);
         this.calc_B();
@@ -77,11 +80,11 @@ export class segment{
     update(){//Keep the children linked to their Parents
 
         if(this.parent){
+           // let dir = this.a.sub(this.c);
             this.parent.calc_C();
-            this.a = this.parent.c;
+            this.a = this.parent.c;//.add(dir);
             this.angle = this.parent.angle;
         }
-
         this.calc_C();
     }
 

@@ -17,7 +17,7 @@ var ctx = canvas.getContext("2d");
 var cRect = canvas.getBoundingClientRect();
 var mouse = new vec2()// Mouse Position
 //Segment Setup
-var amount = 4, segamount = 1; // amount of Segments, Length of Segments
+var amount = 3, segamount = 1; // amount of Segments, Length of Segments
 
 //var tiles = createSegments();
 var seg = create_A_Segments();
@@ -74,7 +74,7 @@ function createSegments(){
 }
 function create_A_Segments(){
     let segs= [amount];
-    let len = 300, decline = .5, angle;
+    let len = 200, decline = .5, angle;
     for(let i = 0; i < amount; i++){
 
         segs[i] = new segment(new vec2(600,600),90,len,segs[i-1]);
@@ -123,7 +123,6 @@ function react_To_Mouse(seg){
 }
 function draw_Segment(seg){ // visualizes everything at some point these will be rendered as rectangles
         
-    seg.calc_C();
     
     //console.log(seg.c)
     ctx.fillRect(seg.origin.x,seg.origin.y,10,10);
@@ -146,15 +145,30 @@ function draw(){
     
     //for(let posx = 0; posx < amount; posx++){
         //for(let posy = 0; posy < amount; posy++){
-            for(let i = 0; i < amount; i++){
+          /*  
+        for(let i = 0; i < amount; i++){
+                if(i < amount-1){
+                    seg[i].update();
 
+                }
                //tiles[posx][posy][i].drawline();
-               seg[i].update();
                draw_Segment(seg[i]);
                react_To_Mouse(seg[i]);
 
 
             }
+            */
+            for(let i = 0; i < amount; i++){
+                seg[i].update();
+                console.log(seg[2].id,seg[2].parent.id);
+
+               //tiles[posx][posy][i].drawline();
+               draw_Segment(seg[i]);
+               react_To_Mouse(seg[i]);
+
+
+            }
+            
             //console.log(`A: ${seg[1].c.x} / ${seg[1].c.y}, B: ${seg[2].c.x} / ${seg[2].c.y}`);
             //}
     //}
