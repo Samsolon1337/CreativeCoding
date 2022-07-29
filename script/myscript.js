@@ -53,7 +53,10 @@ document.onmousemove = function(e){ // get and update mouse position
     mouse.x = e.clientX-cRect.left;
     mouse.y = e.clientY-cRect.top;
 }
-
+document.ontouchmove = function(e){
+    mouse.x = e.clientX-cRect.left;
+    mouse.y = e.clientY-cRect.top;    
+}
 window.onresize = function(e){//When the user Resizes the Browserwindow, fetch the bounding box again
     cRect = canvas.getBoundingClientRect(); 
 }
@@ -118,7 +121,7 @@ function react_To_Mouse(seg){
         
         if(seg.origin.x > mouse.x - limit && seg.origin.x < mouse.x + limit &&
         seg.origin.y < mouse.y + limit && seg.origin.y > mouse.y - limit){//check if a given object is in a given space,, MAYBE ADD ARRAY Coordinates * docsize/amount, to reduze number of calls?
-            seg.calc_C();
+            //seg.calc_C();
             ctx.strokeStyle = "red"; // when in ounding box turn red
             direction.normalize();
             
@@ -128,13 +131,15 @@ function react_To_Mouse(seg){
         }
 
         if(mouseEnter == true){
+            ctx.save();
+            ctx.strokeStyle = "yellow";
             if(seg.a == seg.origin)
             {
                 mouseEnter = false;
             }
             spring(seg);
+            ctx.restore();
         }
-        //seg.update();
     }
 }
 function draw_Segment(seg){ // visualizes everything at some point these will be rendered as rectangles
