@@ -5,37 +5,37 @@ import {vec2} from "./Vector2.js";
 //      Overlap them
 //      Give them color
 //      convert movement on y and y also to z 
-
+const docSize  =new vec2(window.innerWidth,window.innerHeight);
 // My constants
 const canvas = document.getElementById('canvas'); // canvas
+canvas.width = docSize.x;
+canvas.height = docSize.y;
 
-const docSize  =new vec2(canvas.width, canvas.height);
 var ctx = canvas.getContext("2d");
 
 //easier Access to width and height of the canvas
 
 // My variables
 var cRect = canvas.getBoundingClientRect();
-var mouse = new vec2(docSize.x/2,docSize.y/2)// Mouse Position
+var mouse = new vec2(docSize.x/2,docSize.y/2) , prev = new vec2();// Mouse Position
 //Segment Setup
-var amount = 30, segamount = 4; // amount of Segments, Length of Segments
+var amount = 50, segamount = 4; // amount of Segments, Length of Segments
 
-let resposive = docSize.x/window.innerWidth;
-let segLen = (docSize.x)/(amount*resposive);
+let resposive = docSize.x/docSize.y;
 
-// Segments Settings
+
+let segLen = (docSize.x/amount);
 let segDecline = .7;
 let segAngle = 90;
 //var tiles = createSegments();
 var seg = createSegments();
-var quad = quadTree(seg); // NO quadtree yet, becasuse its missing the four elemnent maximum
+var quad = quadTree(seg);
+console.log(resposive); // NO quadtree yet, becasuse its missing the four elemnent maximum
 // let test = [0,0,quad[0].length*segLen,quad[0].length*segLen];
 // let test2 = [0 ,(quad[1].length)*segLen,quad[1][0][0].length*segLen,quad[1][0][0].length*segLen];
 // let test3 = [quad[2].length*segLen ,quad[2].length*segLen,quad[2].length*segLen,quad[2].length*segLen];
 // let test4 = [quad[3].length*segLen ,0,quad[3].length*segLen,quad[3].length*segLen];
 
-
-var mouseEnter = false;
 
 
 //       Event Listenrer
@@ -50,12 +50,13 @@ document.onload = function(e){ // When the page is finished loading, call this f
 }
 
 document.onmousemove = function(e){ // get and update mouse position
+
     mouse.x = e.clientX-cRect.left;
     mouse.y = e.clientY-cRect.top;
+    
 }
 canvas.ontouchstart = function(e){
     canvas.ontouchmove = function(e){
-        console.log(e);
         e.preventDefault();
         mouse.x = e.touches[0].clientX-cRect.left;
         mouse.y = e.touches[0].clientY-cRect.top;    
@@ -71,7 +72,7 @@ canvas.ontouchstart = function(e){
 }
 window.onresize = function(e){//When the user Resizes the Browserwindow, fetch the bounding box again
     resposive = docSize.x/window.innerWidth;
-    segLen = (docSize.x)/(amount*resposive);
+    segLen = (docSize.x/amount)-resposive;
     cRect = canvas.getBoundingClientRect(); 
 }
 
@@ -82,7 +83,7 @@ setInterval(draw,20);
 
 // My Functions
 function createSegments(){
-    let vecsegLens = docSize.div(amount+1);//Important for gridbased positional data
+    let vecSteps = docSize.div(amount+1);//Important for gridbased positional data
     let segs = [amount];// Array that stores all the information
     let len, decline = segDecline; // length of the segments, so far not decreaseing with each itearation
     let angle = segAngle;
@@ -90,13 +91,13 @@ function createSegments(){
     for(let x = 0; x < amount; x++){// Loop for x axis
         segs[x] = Array(amount);  // Make array 2 Diemsional to store the grid 
         angle = Math.random()*(140-40)+40; // Random Angle
-        for(let y = 0; y < amount; y++){// Loop for y Axis
+        for(let y = 0; y < amount*Math.round(resposive); y++){// Loop for y Axis
             segs[x][y] = Array(segamount); 
-            len = segLen;
+            len = segLen/resposive;
             for(let i = 0; i < segamount; i++){ //Loop for interation , TECHNIALLY Z AXIS
                 // Make array 3 Dimensional, to store the Segment Arrays
                 
-                segs[x][y][i] = new segment(new vec2(vecsegLens.x *(x+1),vecsegLens.y *(y+1)),angle,len,(segs[x][y][(i-1)])); // Still a bug with the parent entity, for some reason always null
+                segs[x][y][i] = new segment(new vec2(vecSteps.x *(x+1),vecSteps.y *(y+1)),angle,len,(segs[x][y][(i-1)])); // Still a bug with the parent entity, for some reason always null
                 len *= decline;
                 //console.table(segs[x][y][i]);
             }   
@@ -130,36 +131,37 @@ function spring(seg){//for a smoother response ;; ITS STILL MISSING THE BOUNCYNE
 
 
 function react_To_Mouse(seg){
-    if(!seg.parent){//only work on the base Segment AKA the Main one
-        let limit = 100, direction = seg.a.sub(mouse);//LIMIT: raduis for the collisiondetection; DIR: substract multiple vectors to create a directional vector
-        
-        if(seg.origin.x > mouse.x - limit && seg.origin.x < mouse.x + limit &&
-        seg.origin.y < mouse.y + limit && seg.origin.y > mouse.y - limit){//check if a given object is in a given space,, MAYBE ADD ARRAY Coordinates * docsize/amount, to reduze number of calls?
-            //seg.calc_C();
-            ctx.strokeStyle = "red"; // when in ounding box turn red
-            direction.normalize();
+
+        if(!seg.parent){//only work on the base Segment AKA the Main one
+            let limit = 90, direction = seg.a.sub(mouse);//LIMIT: raduis for the collisiondetection; DIR: substract multiple vectors to create a directional vector
             
-            seg.a = seg.origin.add(direction.multi(limit)); // segment evading the mouse+radius
-           
-            seg.mouseEnter = true;//This is used to give the spring some downtime, to come back ,, MAYBE use spring() internal loop
+            if(seg.origin.x > mouse.x - limit && seg.origin.x < mouse.x + limit &&
+            seg.origin.y < mouse.y + limit && seg.origin.y > mouse.y - limit){//check if a given object is in a given space,, MAYBE ADD ARRAY Coordinates * docsize/amount, to reduze number of calls?
+                //seg.calc_C();
+                ctx.strokeStyle = "red"; // when in ounding box turn red
+                direction.normalize();
+                
+                seg.a = seg.origin.add(direction.multi(limit)); // segment evading the mouse+radius
+            
+                seg.mouseEnter = true;//This is used to give the spring some downtime, to come back ,, MAYBE use spring() internal loop
 
+            }
+
+            
         }
-
         if(seg.mouseEnter == true){
             ctx.save();
             ctx.strokeStyle = "yellow";
-            if(seg.a == seg.origin)
-            {
+            if(seg.a == seg.origin){
                 seg.mouseEnter = false;
             }
             spring(seg)
             ctx.restore();
         }
-    }
     //spring(seg);
 }
 function draw_Segment(seg){ // visualizes everything at some point these will be rendered as rectangles
-        
+    
     
     //console.log(seg.c)
     //ctx.fillRect(seg.origin.x,seg.origin.y,10,10);
@@ -174,7 +176,6 @@ function draw_Segment(seg){ // visualizes everything at some point these will be
 }
 
 function draw(){
-
 
     ctx.clearRect(0,0, docSize.x,docSize.y);
     ctx.strokeStyle = "#3f9f3f";
@@ -200,7 +201,7 @@ function draw(){
             */
      
     for(let posx = 0; posx < amount;posx++){  
-        for(let posy = 0; posy < amount;posy++){
+        for(let posy = 0; posy < amount*Math.round(resposive);posy++){
             for(let i = 0; i < segamount; i++){
                 seg[posx][posy][i].update();
                 //console.log(seg[2].id,seg[2].parent.id);
