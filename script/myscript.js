@@ -21,7 +21,7 @@ var mouse = new vec2(docSize.x/2,docSize.y/2) , prev = new vec2();// Mouse Posit
 //Segment Setup
 var amount = 50, segamount = 4; // amount of Segments, Length of Segments
 
-let resposive = docSize.x/docSize.y;
+
 
 
 let segLen = (docSize.x/amount);
@@ -30,7 +30,7 @@ let segAngle = 90;
 //var tiles = createSegments();
 var seg = createSegments();
 var quad = quadTree(seg);
-console.log(resposive); // NO quadtree yet, becasuse its missing the four elemnent maximum
+ // NO quadtree yet, becasuse its missing the four elemnent maximum
 // let test = [0,0,quad[0].length*segLen,quad[0].length*segLen];
 // let test2 = [0 ,(quad[1].length)*segLen,quad[1][0][0].length*segLen,quad[1][0][0].length*segLen];
 // let test3 = [quad[2].length*segLen ,quad[2].length*segLen,quad[2].length*segLen,quad[2].length*segLen];
@@ -62,17 +62,16 @@ canvas.ontouchstart = function(e){
         mouse.y = e.touches[0].clientY-cRect.top;    
     }
     canvas.ontouchend = function(e){
-    mouse.x = null;
-    mouse.y = null;    
+        mouse.x = -100;
+        mouse.y = -100;  
 }
     canvas.ontouchcancel = function(e){
-        mouse.x = null;
-        mouse.y = null;    
+        mouse.x = -100;
+        mouse.y = -100;    
     }
 }
 window.onresize = function(e){//When the user Resizes the Browserwindow, fetch the bounding box again
-    resposive = docSize.x/window.innerWidth;
-    segLen = (docSize.x/amount)-resposive;
+    segLen = (docSize.x/amount);
     cRect = canvas.getBoundingClientRect(); 
 }
 
@@ -91,9 +90,9 @@ function createSegments(){
     for(let x = 0; x < amount; x++){// Loop for x axis
         segs[x] = Array(amount);  // Make array 2 Diemsional to store the grid 
         angle = Math.random()*(140-40)+40; // Random Angle
-        for(let y = 0; y < amount*Math.round(resposive); y++){// Loop for y Axis
+        for(let y = 0; y < amount; y++){// Loop for y Axis
             segs[x][y] = Array(segamount); 
-            len = segLen/resposive;
+            len = segLen;
             for(let i = 0; i < segamount; i++){ //Loop for interation , TECHNIALLY Z AXIS
                 // Make array 3 Dimensional, to store the Segment Arrays
                 
@@ -201,7 +200,7 @@ function draw(){
             */
      
     for(let posx = 0; posx < amount;posx++){  
-        for(let posy = 0; posy < amount*Math.round(resposive);posy++){
+        for(let posy = 0; posy < amount;posy++){
             for(let i = 0; i < segamount; i++){
                 seg[posx][posy][i].update();
                 //console.log(seg[2].id,seg[2].parent.id);
