@@ -7,9 +7,9 @@ import {vec2} from "./Vector2.js";
 //      convert movement on y and y also to z 
 
 // My constants
-let canvas = document.getElementById('canvas'); // canvas
+const canvas = document.getElementById('canvas'); // canvas
 
-const docSize  =new vec2(canvas.width, canvas.height);;
+const docSize  =new vec2(canvas.width, canvas.height);
 var ctx = canvas.getContext("2d");
 
 //easier Access to width and height of the canvas
@@ -20,20 +20,19 @@ var mouse = new vec2(docSize.x/2,docSize.y/2)// Mouse Position
 //Segment Setup
 var amount = 30, segamount = 4; // amount of Segments, Length of Segments
 
-
-let step = docSize.x/ amount;
+let resposive = docSize.x/window.innerWidth;
+let segLen = (docSize.x)/(amount*resposive);
 
 // Segments Settings
-let segLength = 65;
 let segDecline = .7;
 let segAngle = 90;
 //var tiles = createSegments();
 var seg = createSegments();
 var quad = quadTree(seg); // NO quadtree yet, becasuse its missing the four elemnent maximum
-// let test = [0,0,quad[0].length*step,quad[0].length*step];
-// let test2 = [0 ,(quad[1].length)*step,quad[1][0][0].length*step,quad[1][0][0].length*step];
-// let test3 = [quad[2].length*step ,quad[2].length*step,quad[2].length*step,quad[2].length*step];
-// let test4 = [quad[3].length*step ,0,quad[3].length*step,quad[3].length*step];
+// let test = [0,0,quad[0].length*segLen,quad[0].length*segLen];
+// let test2 = [0 ,(quad[1].length)*segLen,quad[1][0][0].length*segLen,quad[1][0][0].length*segLen];
+// let test3 = [quad[2].length*segLen ,quad[2].length*segLen,quad[2].length*segLen,quad[2].length*segLen];
+// let test4 = [quad[3].length*segLen ,0,quad[3].length*segLen,quad[3].length*segLen];
 
 
 var mouseEnter = false;
@@ -45,8 +44,6 @@ document.onload = function(e){ // When the page is finished loading, call this f
     if (!canvas.getContext) {
         return;
     }
-
-
     canvas.style.width = docSize.x; // sync the javascript h/w with the css h/w
     canvas.style.height = docSize.y;
     // get the context
@@ -56,15 +53,25 @@ document.onmousemove = function(e){ // get and update mouse position
     mouse.x = e.clientX-cRect.left;
     mouse.y = e.clientY-cRect.top;
 }
-document.ontouchstart = function(e){
-    mouse.x = e.screenX-cRect.left;
-    mouse.y = e.screenY-cRect.top;    
+canvas.ontouchstart = function(e){
+    canvas.ontouchmove = function(e){
+        console.log(e);
+        e.preventDefault();
+        mouse.x = e.touches[0].clientX-cRect.left;
+        mouse.y = e.touches[0].clientY-cRect.top;    
+    }
+    canvas.ontouchend = function(e){
+    mouse.x = null;
+    mouse.y = null;    
 }
-document.ontouchmove = function(e){
-    mouse.x = e.screenX-cRect.left;
-    mouse.y = e.screenY-cRect.top;    
+    canvas.ontouchcancel = function(e){
+        mouse.x = null;
+        mouse.y = null;    
+    }
 }
 window.onresize = function(e){//When the user Resizes the Browserwindow, fetch the bounding box again
+    resposive = docSize.x/window.innerWidth;
+    segLen = (docSize.x)/(amount*resposive);
     cRect = canvas.getBoundingClientRect(); 
 }
 
@@ -75,7 +82,7 @@ setInterval(draw,20);
 
 // My Functions
 function createSegments(){
-    let vecsteps = docSize.div(amount+1);//Important for gridbased positional data
+    let vecsegLens = docSize.div(amount+1);//Important for gridbased positional data
     let segs = [amount];// Array that stores all the information
     let len, decline = segDecline; // length of the segments, so far not decreaseing with each itearation
     let angle = segAngle;
@@ -85,11 +92,11 @@ function createSegments(){
         angle = Math.random()*(140-40)+40; // Random Angle
         for(let y = 0; y < amount; y++){// Loop for y Axis
             segs[x][y] = Array(segamount); 
-            len = step;
+            len = segLen;
             for(let i = 0; i < segamount; i++){ //Loop for interation , TECHNIALLY Z AXIS
                 // Make array 3 Dimensional, to store the Segment Arrays
                 
-                segs[x][y][i] = new segment(new vec2(vecsteps.x *(x+1),vecsteps.y *(y+1)),angle,len,(segs[x][y][(i-1)])); // Still a bug with the parent entity, for some reason always null
+                segs[x][y][i] = new segment(new vec2(vecsegLens.x *(x+1),vecsegLens.y *(y+1)),angle,len,(segs[x][y][(i-1)])); // Still a bug with the parent entity, for some reason always null
                 len *= decline;
                 //console.table(segs[x][y][i]);
             }   
