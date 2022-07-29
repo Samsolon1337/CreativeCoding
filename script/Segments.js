@@ -5,7 +5,7 @@ export class segment{
         @param {vec2} _a - the vector2
         */
     constructor(_a, _angle = 90, _len = 100, _parent){
-        console.log(_parent instanceof segment);
+       // console.log(_parent instanceof segment);
         if (_parent instanceof segment){ //Following Segments, that will also be linked to the Main one, 
                                         // Thats the reason it mostly stores the parents data
             this.id = _parent.id +1;
@@ -51,9 +51,10 @@ export class segment{
             ang.y = this.len* Math.sin(this.angle);
             this.b = this.a.add(ang);
             //seg.origin.add(dir.multi(limit/3));
-            let r = this.b.mag();
-            this.c.x = this.a.x+(ang.x/360)+2*Math.cos(r);
-            this.c.y = this.a.y+(ang.y/360)+2*Math.sin(r);
+            let r = ang.mag();
+            this.c.x = this.a.x+(ang.x/360)*(2*Math.cos(r*this.angle));
+            this.c.y = this.a.y+(ang.y/360)*(2*Math.sin(r*this.angle));
+            //console.log(this.c.sub(this.a))
     
     }
         /*       console.log(this.c);
