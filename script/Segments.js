@@ -1,6 +1,7 @@
 import {vec2} from "./Vector2.js";
 
 export class segment{
+        mouseEnter;
         /** 
         @param {vec2} _a - the vector2
         */

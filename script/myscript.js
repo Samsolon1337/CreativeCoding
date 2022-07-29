@@ -7,17 +7,18 @@ import {vec2} from "./Vector2.js";
 //      convert movement on y and y also to z 
 
 // My constants
-const canvas = document.getElementById('canvas'); // canvas
-const docSize  = new vec2(canvas.width, canvas.height);
+let canvas = document.getElementById('canvas'); // canvas
+
+const docSize  =new vec2(canvas.width, canvas.height);;
 var ctx = canvas.getContext("2d");
 
 //easier Access to width and height of the canvas
 
 // My variables
 var cRect = canvas.getBoundingClientRect();
-var mouse = new vec2()// Mouse Position
+var mouse = new vec2(docSize.x/2,docSize.y/2)// Mouse Position
 //Segment Setup
-var amount = 45, segamount = 2; // amount of Segments, Length of Segments
+var amount = 30, segamount = 4; // amount of Segments, Length of Segments
 
 
 let step = docSize.x/ amount;
@@ -29,11 +30,11 @@ let segAngle = 90;
 //var tiles = createSegments();
 var seg = createSegments();
 var quad = quadTree(seg); // NO quadtree yet, becasuse its missing the four elemnent maximum
-let test = [0,0,quad[0].length*step,quad[0].length*step];
-let test2 = [0 ,(quad[1].length)*step,quad[1][0][0].length*step,quad[1][0][0].length*step];
-let test3 = [quad[2].length*step ,quad[2].length*step,quad[2].length*step,quad[2].length*step];
-let test4 = [quad[3].length*step ,0,quad[3].length*step,quad[3].length*step];
-console.table(test2);
+// let test = [0,0,quad[0].length*step,quad[0].length*step];
+// let test2 = [0 ,(quad[1].length)*step,quad[1][0][0].length*step,quad[1][0][0].length*step];
+// let test3 = [quad[2].length*step ,quad[2].length*step,quad[2].length*step,quad[2].length*step];
+// let test4 = [quad[3].length*step ,0,quad[3].length*step,quad[3].length*step];
+
 
 var mouseEnter = false;
 
@@ -44,6 +45,8 @@ document.onload = function(e){ // When the page is finished loading, call this f
     if (!canvas.getContext) {
         return;
     }
+
+
     canvas.style.width = docSize.x; // sync the javascript h/w with the css h/w
     canvas.style.height = docSize.y;
     // get the context
@@ -52,6 +55,10 @@ document.onload = function(e){ // When the page is finished loading, call this f
 document.onmousemove = function(e){ // get and update mouse position
     mouse.x = e.clientX-cRect.left;
     mouse.y = e.clientY-cRect.top;
+}
+document.ontouchstart = function(e){
+    mouse.x = e.clientX-cRect.left;
+    mouse.y = e.clientY-cRect.top;    
 }
 document.ontouchmove = function(e){
     mouse.x = e.clientX-cRect.left;
@@ -87,7 +94,7 @@ function createSegments(){
                 //console.table(segs[x][y][i]);
             }   
         }
-    } console.log(`Number of elements ${segs.length}, Splits ${segs.length / 4}`) // FUCKING DEBUGGING  
+    } //console.log(`Number of elements ${segs.length}, Splits ${segs.length / 4}`) // FUCKING DEBUGGING  
     return segs;
 }
 /*
@@ -127,20 +134,22 @@ function react_To_Mouse(seg){
             
             seg.a = seg.origin.add(direction.multi(limit)); // segment evading the mouse+radius
            
-            mouseEnter = true;//This is used to give the spring some downtime, to come back ,, MAYBE use spring() internal loop
+            seg.mouseEnter = true;//This is used to give the spring some downtime, to come back ,, MAYBE use spring() internal loop
+
         }
 
-        if(mouseEnter == true){
+        if(seg.mouseEnter == true){
             ctx.save();
             ctx.strokeStyle = "yellow";
             if(seg.a == seg.origin)
             {
-                mouseEnter = false;
+                seg.mouseEnter = false;
             }
-            spring(seg);
+            spring(seg)
             ctx.restore();
         }
     }
+    //spring(seg);
 }
 function draw_Segment(seg){ // visualizes everything at some point these will be rendered as rectangles
         
@@ -162,10 +171,10 @@ function draw(){
 
     ctx.clearRect(0,0, docSize.x,docSize.y);
     ctx.strokeStyle = "#3f9f3f";
-    ctx.strokeRect(test[0],test[1],test[2],test[3]);
-    ctx.strokeRect(test2[0],test2[1],test2[2],test2[3]);
-    ctx.strokeRect(test3[0],test3[1],test3[2],test3[3]);
-    ctx.strokeRect(test4[0],test4[1],test4[2],test4[3]);
+    // ctx.strokeRect(test[0],test[1],test[2],test[3]);
+    // ctx.strokeRect(test2[0],test2[1],test2[2],test2[3]);
+    // ctx.strokeRect(test3[0],test3[1],test3[2],test3[3]);
+    // ctx.strokeRect(test4[0],test4[1],test4[2],test4[3]);
     
     //for(let posx = 0; posx < amount; posx++){
         //for(let posy = 0; posy < amount; posy++){
@@ -188,8 +197,8 @@ function draw(){
             for(let i = 0; i < segamount; i++){
                 seg[posx][posy][i].update();
                 //console.log(seg[2].id,seg[2].parent.id);
-                react_To_Mouse(seg[posx][posy][i]);
                 draw_Segment(seg[posx][posy][i]);
+                react_To_Mouse(seg[posx][posy][i]);
 
 
 
@@ -220,14 +229,14 @@ function quadTree(quad0){
 
 
 
-        console.table(quad0);
-        console.log("TopLeft");
-        console.table(quadTopLeft);
-        console.log("BottomLeft");
-        console.table(quadBottomLeft);
-        console.log("BotttomRight");
-        console.table(quadBottomRight);
-        console.log("TopRight");
-        console.table(quadTopRight);
+        // console.table(quad0);
+        // console.log("TopLeft");
+        // console.table(quadTopLeft);
+        // console.log("BottomLeft");
+        // console.table(quadBottomLeft);
+        // console.log("BotttomRight");
+        // console.table(quadBottomRight);
+        // console.log("TopRight");
+        // console.table(quadTopRight);
     return [quadTopLeft,quadBottomLeft,quadBottomRight,quadTopRight];
 }
