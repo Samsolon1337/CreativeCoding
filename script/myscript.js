@@ -57,12 +57,12 @@ document.onmousemove = function(e){ // get and update mouse position
     mouse.y = e.clientY-cRect.top;
 }
 document.ontouchstart = function(e){
-    mouse.x = e.clientX-cRect.left;
-    mouse.y = e.clientY-cRect.top;    
+    mouse.x = e.screenX-cRect.left;
+    mouse.y = e.screenY-cRect.top;    
 }
 document.ontouchmove = function(e){
-    mouse.x = e.clientX-cRect.left;
-    mouse.y = e.clientY-cRect.top;    
+    mouse.x = e.screenX-cRect.left;
+    mouse.y = e.screenY-cRect.top;    
 }
 window.onresize = function(e){//When the user Resizes the Browserwindow, fetch the bounding box again
     cRect = canvas.getBoundingClientRect(); 
