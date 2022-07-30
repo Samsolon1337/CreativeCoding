@@ -1,3 +1,4 @@
+import {quadTree} from "./Quadtree.js";
 import {segment} from "./Segments.js";
 import {vec2} from "./Vector2.js";
 
@@ -5,9 +6,10 @@ import {vec2} from "./Vector2.js";
 //      Overlap them
 //      Give them color
 //      convert movement on y and y also to z 
-const docSize  =new vec2(window.innerWidth,window.innerHeight);
+
 // My constants
 const canvas = document.getElementById('canvas'); // canvas
+const docSize  = (window.innerWidth<canvas.width && window.innerHeight < canvas.height)?new vec2(window.innerWidth,window.innerHeight): new vec2(canvas.width, canvas.height);
 canvas.width = docSize.x;
 canvas.height = docSize.y;
 
@@ -17,19 +19,22 @@ var ctx = canvas.getContext("2d");
 
 // My variables
 var cRect = canvas.getBoundingClientRect();
-var mouse = new vec2(docSize.x/2,docSize.y/2) , prev = new vec2();// Mouse Position
+var mouse = new vec2(-1,-1) , prev = new vec2();// Mouse Position
 //Segment Setup
-var amount = 50, segamount = 4; // amount of Segments, Length of Segments
+var amount = 10, segamount = 4; // amount of Segments, Length of Segments
 
 
 
 
-let segLen = (docSize.x/amount);
+let segLen = docSize.x/(amount+1);
 let segDecline = .7;
 let segAngle = 90;
 //var tiles = createSegments();
 var seg = createSegments();
-var quad = quadTree(seg);
+let quadTest;
+// let quadTest = createQuadSegments();
+// drawQuad(quadTest);
+// console.table(quadTest);
  // NO quadtree yet, becasuse its missing the four elemnent maximum
 // let test = [0,0,quad[0].length*segLen,quad[0].length*segLen];
 // let test2 = [0 ,(quad[1].length)*segLen,quad[1][0][0].length*segLen,quad[1][0][0].length*segLen];
@@ -49,13 +54,13 @@ document.onload = function(e){ // When the page is finished loading, call this f
     // get the context
 }
 
-document.onmousemove = function(e){ // get and update mouse position
+document.onmousemove = function(e){ // get and update Mouse position --- Desktop Devices
 
     mouse.x = e.clientX-cRect.left;
     mouse.y = e.clientY-cRect.top;
     
 }
-canvas.ontouchstart = function(e){
+canvas.ontouchstart = function(e){  // get and update Touch position --- Mobile Devices
     canvas.ontouchmove = function(e){
         e.preventDefault();
         mouse.x = e.touches[0].clientX-cRect.left;
@@ -70,8 +75,8 @@ canvas.ontouchstart = function(e){
         mouse.y = -100;    
     }
 }
+
 window.onresize = function(e){//When the user Resizes the Browserwindow, fetch the bounding box again
-    segLen = (docSize.x/amount);
     cRect = canvas.getBoundingClientRect(); 
 }
 
@@ -81,29 +86,7 @@ setInterval(draw,20);
 
 
 // My Functions
-function createSegments(){
-    let vecSteps = docSize.div(amount+1);//Important for gridbased positional data
-    let segs = [amount];// Array that stores all the information
-    let len, decline = segDecline; // length of the segments, so far not decreaseing with each itearation
-    let angle = segAngle;
 
-    for(let x = 0; x < amount; x++){// Loop for x axis
-        segs[x] = Array(amount);  // Make array 2 Diemsional to store the grid 
-        angle = Math.random()*(140-40)+40; // Random Angle
-        for(let y = 0; y < amount; y++){// Loop for y Axis
-            segs[x][y] = Array(segamount); 
-            len = segLen;
-            for(let i = 0; i < segamount; i++){ //Loop for interation , TECHNIALLY Z AXIS
-                // Make array 3 Dimensional, to store the Segment Arrays
-                
-                segs[x][y][i] = new segment(new vec2(vecSteps.x *(x+1),vecSteps.y *(y+1)),angle,len,(segs[x][y][(i-1)])); // Still a bug with the parent entity, for some reason always null
-                len *= decline;
-                //console.table(segs[x][y][i]);
-            }   
-        }
-    } //console.log(`Number of elements ${segs.length}, Splits ${segs.length / 4}`) // FUCKING DEBUGGING  
-    return segs;
-}
 /*
 function create_A_Segments(){
     let segs= [amount];
@@ -165,7 +148,7 @@ function draw_Segment(seg){ // visualizes everything at some point these will be
     //console.log(seg.c)
     //ctx.fillRect(seg.origin.x,seg.origin.y,10,10);
     //ctx.strokeRect(seg.c.x,seg.c.y,seg.len,seg.len);
-    ctx.strokeRect(seg.c.x-(seg.len/2),seg.c.y-(seg.len/2),seg.len,seg.len);
+    //ctx.strokeRect(seg.c.x-(seg.len/2),seg.c.y-(seg.len/2),seg.len,seg.len);
     /*ctx.strokeRect(seg.a.x,seg.a.y,10,10);
     ctx.save();
     ctx.fillStyle = "red";
@@ -182,7 +165,8 @@ function draw(){
     // ctx.strokeRect(test2[0],test2[1],test2[2],test2[3]);
     // ctx.strokeRect(test3[0],test3[1],test3[2],test3[3]);
     // ctx.strokeRect(test4[0],test4[1],test4[2],test4[3]);
-    
+    quadTest = drawPoints();
+    drawQuad(quadTest);
     //for(let posx = 0; posx < amount; posx++){
         //for(let posy = 0; posy < amount; posy++){
           /*  
@@ -199,13 +183,14 @@ function draw(){
             }
             */
      
+
     for(let posx = 0; posx < amount;posx++){  
         for(let posy = 0; posy < amount;posy++){
             for(let i = 0; i < segamount; i++){
                 seg[posx][posy][i].update();
                 //console.log(seg[2].id,seg[2].parent.id);
                 draw_Segment(seg[posx][posy][i]);
-                react_To_Mouse(seg[posx][posy][i]);
+                //react_To_Mouse(seg[posx][posy][i]);
 
 
 
@@ -224,26 +209,109 @@ function draw(){
    // console.log(segments);
 
 }
+let quad = new quadTree(docSize.div(2),docSize.div(2),4);
+function drawPoints(){
+    
+    ctx.fillRect(mouse.x,mouse.y,10,10);
+    quad.insert(new vec2(mouse.x,mouse.y),mouse);
+    return quad;
+}
+function createQuadSegments(){
+    let vecSteps = docSize.div(amount+1);//Important for gridbased positional data
+    let segs;// Array that stores all the information
+    let len, decline = segDecline; // length of the segments, so far not decreaseing with each itearation
+    let quad = new quadTree(docSize.div(2),docSize.div(2),4);
+    let angle = segAngle;
 
-function quadTree(quad0){
+    for(let x = 0; x < amount; x++){// Loop for x axis
+        for(let y = 0; y < amount; y++){// Loop for y Axis
+            len = segLen;
+            segs = new Array();
+            for(let i = 0; i < segamount; i++){ //Loop for interation , TECHNIALLY Z AXIS
+                
+                 segs[i] = (new segment(new vec2(vecSteps.x *(x+1),vecSteps.y *(y+1)),angle,len,segs[i-1])); // Still a bug with the parent entity, for some reason always null
+                len *= decline;
+                //console.table(segs[x][y][i]);
+            }   
+            
+            quad.insert(segs[0],seg[0].a);
+        }
+    } //console.log(`Number of elements ${segs.length}, Splits ${segs.length / 4}`) // FUCKING DEBUGGING  
+    return quad;
+}
 
-    let quadTopLeft,quadBottomLeft,quadBottomRight,quadTopRight;
-    let quad0Max = quad0.length;
-    quadTopLeft = quad0.slice(0, quad0Max/2).map(a => a.slice(0, quad0Max/2)); // cut out the upper left part of the Array
-    quadTopRight = quad0.slice(0, quad0Max/2).map(a => a.slice(quad0Max/2));
-    quadBottomRight = quad0.slice(quad0Max/2).map(a => a.slice(quad0Max/2));
-    quadBottomLeft = quad0.slice(quad0Max/2).map(a => a.slice(0,quad0Max/2));
+function createSegments(){
+    let vecSteps = docSize.div(amount+1);//Important for gridbased positional data
+    let segs = [amount];// Array that stores all the information
+    let len, decline = segDecline; // length of the segments, so far not decreaseing with each itearation
+    let angle = segAngle;
+
+    for(let x = 0; x < amount; x++){// Loop for x axis
+        segs[x] = Array(amount);  // Make array 2 Diemsional to store the grid 
+        angle = Math.random()*(140-40)+40; // Random Angle
+        for(let y = 0; y < amount; y++){// Loop for y Axis
+            segs[x][y] = Array(segamount); 
+            len = segLen;
+            for(let i = 0; i < segamount; i++){ //Loop for interation , TECHNIALLY Z AXIS
+                // Make array 3 Dimensional, to store the Segment Arrays
+                
+                segs[x][y][i] = new segment(new vec2(vecSteps.x *(x+1),vecSteps.y *(y+1)),angle,len,(segs[x][y][(i-1)])); // Still a bug with the parent entity, for some reason always null
+                len *= decline;
+                //console.table(segs[x][y][i]);
+            }   
+        }
+    } //console.log(`Number of elements ${segs.length}, Splits ${segs.length / 4}`) // FUCKING DEBUGGING  
+    return segs;
+}
+// function quadTree(quad0){
+
+//     let quadTopLeft,quadBottomLeft,quadBottomRight,quadTopRight;
+//     let quad0Max = quad0.length;
+//     quadTopLeft = quad0.slice(0, quad0Max/2).map(a => a.slice(0, quad0Max/2)); // cut out the upper left part of the Array
+//     quadTopRight = quad0.slice(0, quad0Max/2).map(a => a.slice(quad0Max/2));
+//     quadBottomRight = quad0.slice(quad0Max/2).map(a => a.slice(quad0Max/2));
+//     quadBottomLeft = quad0.slice(quad0Max/2).map(a => a.slice(0,quad0Max/2));
 
 
 
-        // console.table(quad0);
-        // console.log("TopLeft");
-        // console.table(quadTopLeft);
-        // console.log("BottomLeft");
-        // console.table(quadBottomLeft);
-        // console.log("BotttomRight");
-        // console.table(quadBottomRight);
-        // console.log("TopRight");
-        // console.table(quadTopRight);
-    return [quadTopLeft,quadBottomLeft,quadBottomRight,quadTopRight];
+//         // console.table(quad0);
+//         // console.log("TopLeft");
+//         // console.table(quadTopLeft);
+//         // console.log("BottomLeft");
+//         // console.table(quadBottomLeft);
+//         // console.log("BotttomRight");
+//         // console.table(quadBottomRight);
+//         // console.log("TopRight");
+//         // console.table(quadTopRight);
+//     return [quadTopLeft,quadBottomLeft,quadBottomRight,quadTopRight];
+// }
+
+function drawQuad(quad){
+    // for(let i = 0; i<seg.length; i++){
+    //     ctx.clearRect(0,0,1800,1800);
+    //     setTimeout(() => { console.log("Hi"); }, 5000);
+    //     for(let j = 0; j<seg.length; j++){
+            if(quad.contains(mouse)){
+                
+                ctx.save();
+                ctx.lineWidth= 8;
+                ctx.strokeRect(quad.bPos.x-quad.bSize.x, quad.bPos.y-quad.bSize.y, quad.bSize.x*2, quad.bSize.y*2);
+                ctx.restore();
+            }
+                ctx.lineWidth= 2;
+                ctx.beginPath();
+                ctx.strokeRect(quad.bPos.x-quad.bSize.x, quad.bPos.y-quad.bSize.y, quad.bSize.x*2, quad.bSize.y*2);
+
+
+
+    if(quad.divided == true){
+        drawQuad(quad.topLeft);
+        drawQuad(quad.topRight);
+        drawQuad(quad.bottomLeft);
+        drawQuad(quad.bottomRight); 
+    }
+
+
+
+
 }
