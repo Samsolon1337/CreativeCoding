@@ -1,16 +1,18 @@
+import { rect } from "./Rectangle.js";
 import { vec2 } from "./Vector2.js";
-
 export class quadTree{
-    constructor(_bPos,_bSize,_cap){
-        this.bPos = _bPos;
-        this.bSize = _bSize;
+    /**
+     * 
+     * @param {rect} _boundary - A rectangle
+     */
+    constructor(_boundary,_cap){
+        this.boundary = _boundary;
         this.cap = _cap;
         this.elementArray = [];
         this.divided = false;
     }
-
     insert(element,coord) {
-        if(!this.contains(coord)){
+        if(!this.boundary.contains(coord)){
             return;
         }
         if(this.elementArray.length<this.cap){
@@ -28,24 +30,43 @@ export class quadTree{
     }
 
     subdivide(){
+        //
         // For more readability
-        let newBSize = new vec2(this.bSize.x/2,this.bSize.y/2);
-        let Right = this.bPos.x + (this.bSize.x/2);
-        let Top = this.bPos.y - (this.bSize.y/2);
-        let Bottom = this.bPos.y + (this.bSize.y/2);
-        let Left = this.bPos.x - (this.bSize.x/2);  
+        let newBound = new vec2(this.boundary.w/2,this.boundary.h/2);
+        let Right = this.boundary.x + (this.boundary.w/2);
+        let Top = this.boundary.y;
+        let Bottom = this.boundary.y + (this.boundary.h/2);
+        let Left = this.boundary.x;  
 
-        this.topLeft = new quadTree(new vec2(Left,Top), newBSize, this.cap);
-        this.topRight = new quadTree(new vec2(Right,Top), newBSize, this.cap);
-        this.bottomLeft = new quadTree(new vec2(Left,Bottom), newBSize, this.cap);
-        this.bottomRight = new quadTree(new vec2(Right,Bottom), newBSize, this.cap);
+        this.topLeft = new quadTree(new rect(Left,Top, newBound.x, newBound.y), this.cap);
+        this.topRight = new quadTree(new rect(Right,Top, newBound.x, newBound.y), this.cap);
+        this.bottomLeft = new quadTree(new rect(Left,Bottom, newBound.x, newBound.y), this.cap);
+        this.bottomRight = new quadTree(new rect(Right,Bottom, newBound.x, newBound.y), this.cap);
         
         this.divided = true;
     }
 
-    contains(coord){
-        return (coord.x <= this.bPos.x + this.bSize.x && coord.x >= this.bPos.x - this.bSize.x && coord.y <= this.bPos.y + this.bSize.y && coord.y >= this.bPos.y - this.bSize.y);
-
-
+    search(range, found){
+        if(!found){
+            found = new Array();
+        }
+        if(!this.boundary.intersects(range)){
+            return;
+        }
+        else{
+            for(let element of this.elementArray){
+                if(range.contains(element.a)){
+                    found.push(element);
+                }
+            }
+            
+            if(this.divided){
+                this.topLeft.search(range, found);
+                this.topRight.search(range, found);
+                this.bottomLeft.search(range, found);
+                this.bottomRight.search(range, found);
+            }
+            return found;
+        }
     }
 }

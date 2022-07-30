@@ -71,8 +71,4 @@ export class vec2{
             return new vec2((this.x / newVec),(this.y / newVec));
          }
     }
-    //getter
-    get vec(){
-        return new vec2(this.x,this.y);
-    }
 }

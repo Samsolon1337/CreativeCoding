@@ -1,4 +1,5 @@
 import {quadTree} from "./Quadtree.js";
+import { rect } from "./Rectangle.js";
 import {segment} from "./Segments.js";
 import {vec2} from "./Vector2.js";
 
@@ -21,8 +22,7 @@ var ctx = canvas.getContext("2d");
 var cRect = canvas.getBoundingClientRect();
 var mouse = new vec2(-1,-1) , prev = new vec2();// Mouse Position
 //Segment Setup
-var amount = 10, segamount = 4; // amount of Segments, Length of Segments
-
+var amount = 8, segamount = 2; // amount of Segments, Length of Segments
 
 
 
@@ -31,7 +31,8 @@ let segDecline = .7;
 let segAngle = 90;
 //var tiles = createSegments();
 var seg = createSegments();
-let quadTest;
+let quadTest = createQuadSegments();
+
 // let quadTest = createQuadSegments();
 // drawQuad(quadTest);
 // console.table(quadTest);
@@ -128,8 +129,6 @@ function react_To_Mouse(seg){
                 seg.mouseEnter = true;//This is used to give the spring some downtime, to come back ,, MAYBE use spring() internal loop
 
             }
-
-            
         }
         if(seg.mouseEnter == true){
             ctx.save();
@@ -146,9 +145,9 @@ function draw_Segment(seg){ // visualizes everything at some point these will be
     
     
     //console.log(seg.c)
-    //ctx.fillRect(seg.origin.x,seg.origin.y,10,10);
+    ctx.fillRect(seg.origin.x,seg.origin.y,10,10);
     //ctx.strokeRect(seg.c.x,seg.c.y,seg.len,seg.len);
-    //ctx.strokeRect(seg.c.x-(seg.len/2),seg.c.y-(seg.len/2),seg.len,seg.len);
+    ctx.strokeRect(seg.c.x-(seg.len/2),seg.c.y-(seg.len/2),seg.len,seg.len);
     /*ctx.strokeRect(seg.a.x,seg.a.y,10,10);
     ctx.save();
     ctx.fillStyle = "red";
@@ -158,45 +157,37 @@ function draw_Segment(seg){ // visualizes everything at some point these will be
 }
 
 function draw(){
+    ctx.clearRect(0,0, docSize.x,docSize.y);// resets canvas
+    let size = 400
+    ctx.strokeRect(mouse.x-size/2,mouse.y-size/2,size,size);
+    
+    let found = quadTest.search(new rect(mouse.x-size/2,mouse.y-size/2,size,size),null);
+    console.log(found[0]);
 
-    ctx.clearRect(0,0, docSize.x,docSize.y);
     ctx.strokeStyle = "#3f9f3f";
-    // ctx.strokeRect(test[0],test[1],test[2],test[3]);
-    // ctx.strokeRect(test2[0],test2[1],test2[2],test2[3]);
-    // ctx.strokeRect(test3[0],test3[1],test3[2],test3[3]);
-    // ctx.strokeRect(test4[0],test4[1],test4[2],test4[3]);
-    quadTest = drawPoints();
-    drawQuad(quadTest);
-    //for(let posx = 0; posx < amount; posx++){
-        //for(let posy = 0; posy < amount; posy++){
-          /*  
-        for(let i = 0; i < amount; i++){
-                if(i < amount-1){
-                    seg[i].update();
 
-                }
-               //tiles[posx][posy][i].drawline();
-               draw_Segment(seg[i]);
-               react_To_Mouse(seg[i]);
-
-
-            }
-            */
+    // drawQuad(quadTest);
      
+    for(let i = 0; i< found.length;i++){
+        for(let j = 0; j < segamount;j++){
+        draw_Segment(found[i]);
+        react_To_Mouse(found[i]);
+        }
 
-    for(let posx = 0; posx < amount;posx++){  
-        for(let posy = 0; posy < amount;posy++){
-            for(let i = 0; i < segamount; i++){
-                seg[posx][posy][i].update();
-                //console.log(seg[2].id,seg[2].parent.id);
-                draw_Segment(seg[posx][posy][i]);
-                //react_To_Mouse(seg[posx][posy][i]);
+    }
+        // for(let posx = 0; posx < amount;posx++){  
+    //     for(let posy = 0; posy < amount;posy++){
+    //         for(let i = 0; i < segamount; i++){
+    //             seg[posx][posy][i].update();
+    //             //console.log(seg[2].id,seg[2].parent.id);
+    //             draw_Segment(seg[posx][posy][i]);
+    //             //react_To_Mouse(seg[posx][posy][i]);
 
 
 
-            }
-        } 
-    }         
+    //         }
+    //     } 
+    // }         
             //console.log(`A: ${seg[1].c.x} / ${seg[1].c.y}, B: ${seg[2].c.x} / ${seg[2].c.y}`);
             //}
     //}
@@ -209,21 +200,23 @@ function draw(){
    // console.log(segments);
 
 }
-let quad = new quadTree(docSize.div(2),docSize.div(2),4);
-function drawPoints(){
+// let quad = new quadTree(docSize.div(2),docSize.div(2),4);
+// function drawPoints(){
     
-    ctx.fillRect(mouse.x,mouse.y,10,10);
-    quad.insert(new vec2(mouse.x,mouse.y),mouse);
-    return quad;
-}
+//     ctx.fillRect(mouse.x,mouse.y,10,10);
+//     quad.insert(new vec2(mouse.x,mouse.y),mouse);
+//     return quad;
+// }
 function createQuadSegments(){
     let vecSteps = docSize.div(amount+1);//Important for gridbased positional data
     let segs;// Array that stores all the information
     let len, decline = segDecline; // length of the segments, so far not decreaseing with each itearation
-    let quad = new quadTree(docSize.div(2),docSize.div(2),4);
+    let quad = new quadTree(new rect(0,0,docSize.x,docSize.y),4);
+
     let angle = segAngle;
 
     for(let x = 0; x < amount; x++){// Loop for x axis
+
         for(let y = 0; y < amount; y++){// Loop for y Axis
             len = segLen;
             segs = new Array();
@@ -233,8 +226,8 @@ function createQuadSegments(){
                 len *= decline;
                 //console.table(segs[x][y][i]);
             }   
-            
-            quad.insert(segs[0],seg[0].a);
+            console.log(segs);
+            quad.insert(segs,segs.a);
         }
     } //console.log(`Number of elements ${segs.length}, Splits ${segs.length / 4}`) // FUCKING DEBUGGING  
     return quad;
@@ -291,16 +284,16 @@ function drawQuad(quad){
     //     ctx.clearRect(0,0,1800,1800);
     //     setTimeout(() => { console.log("Hi"); }, 5000);
     //     for(let j = 0; j<seg.length; j++){
-            if(quad.contains(mouse)){
+            if(quad.boundary.contains(mouse)){
                 
                 ctx.save();
                 ctx.lineWidth= 8;
-                ctx.strokeRect(quad.bPos.x-quad.bSize.x, quad.bPos.y-quad.bSize.y, quad.bSize.x*2, quad.bSize.y*2);
+                ctx.strokeRect(quad.boundary.x, quad.boundary.y, quad.boundary.w, quad.boundary.w);
                 ctx.restore();
             }
                 ctx.lineWidth= 2;
                 ctx.beginPath();
-                ctx.strokeRect(quad.bPos.x-quad.bSize.x, quad.bPos.y-quad.bSize.y, quad.bSize.x*2, quad.bSize.y*2);
+                ctx.strokeRect(quad.boundary.x, quad.boundary.y, quad.boundary.w, quad.boundary.h);
 
 
 
