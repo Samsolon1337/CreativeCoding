@@ -6,6 +6,7 @@ const checkBoxFill = document.getElementById("fillrect");
 const pre1 = document.getElementById("one");
 const pre2 = document.getElementById("two");
 const pre3 = document.getElementById("three");
+const pre4 = document.getElementById("four");
 // -------------------------------------------------------------- initialize Sliders
 // const amountSlider = document.getElementById('Amount'); // Get Amount
 // const segmentSlider = document.getElementById('SegmentAmount'); // Get segAmount
@@ -42,9 +43,10 @@ let mouseLimit = 60;
 // -------------------------------------------------------------- End of Variables for Mouse 
 // -------------------------------------------------------------- Variables Colors
 
-let colorPreset = ["#53B327","#6B74FF","#89FF52","#FF7538","#B35830"]; // Define Segment Colors
-let colorPreset1 = ["#3B3A70","#5D5BB0","#7E7DF0","#8583FC","#716FD6"];
-let colorPreset2 = ["#2A9C4D","#2DA630","#4C8F2E","#7DA62D","#9C9B2A"];
+let colorPreset = ["#048ABF","#04BF9D","#04D9D9","#AEF2E6","#04C4D9"]; // Define Segment Colors
+let colorPreset1 = ["#8C355A","#382D32","#CFA5B6","#52313F","#856A75"];
+let colorPreset2 = ["#8EBF24","#D1E086","#94A653","#F9FAE9"];
+let colorPreset3 = ["#545454","#FFFFFF","#000000","#FFFFFF","#000000"];
 // -------------------------------------------------------------- End of Colors
 
 // ____________________________________________________________________________________ End of Global Variables
@@ -227,8 +229,13 @@ function draw_Segment(seg){ // visualizes everything at some point these will be
         ctx.strokeStyle = colorPreset2[seg.id-1];
         ctx.fillStyle = colorPreset2[seg.id-1];
     }
+    if (pre4.checked){
+        ctx.strokeStyle = colorPreset3[seg.id-1];
+        ctx.fillStyle = colorPreset3[seg.id-1];
+    }
 
     if(checkBoxFill.checked){
+
         ctx.fillRect(seg.c.x-(seg.size/2),seg.c.y-(seg.size/2),seg.size,seg.size);  
     }
     else{
