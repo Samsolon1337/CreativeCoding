@@ -2,7 +2,10 @@ import {segment} from "./Segments.js";  //Import Segments for Foward Kinematis
 import {vec2} from "./Vector2.js";      //Import Custom Vector Class
 
 // ____________________________________________________________________________________ Global Variables
-
+const checkBoxFill = document.getElementById("fillrect");
+const pre1 = document.getElementById("one");
+const pre2 = document.getElementById("two");
+const pre3 = document.getElementById("three");
 // -------------------------------------------------------------- initialize Sliders
 // const amountSlider = document.getElementById('Amount'); // Get Amount
 // const segmentSlider = document.getElementById('SegmentAmount'); // Get segAmount
@@ -18,17 +21,17 @@ canvas.width = docSize.x; // Set canvas Size equal to DocSize
 canvas.height = docSize.y;
 
 let ctx = canvas.getContext("2d");// Context required for drawing
+ctx.lineWidth = 1.5;
 // -------------------------------------------------------------- End of Canvas
 // -------------------------------------------------------------- Setup Segments
 let amount = 40;     // Amount of Objects in one Row
-let segAmount = 3;  // Amount of Segments
+let segAmount = 4;  // Amount of Segments
 
 let segStepSize = docSize.div(amount+1);
 let segLen = 100;  // Global Segment length
 let segDecline = .6;              // Global Segment Length Decline
 
 let segAngle = 90;                  // Global initial Segment Angle
-let SegColors = ["#0C65E8","#0CA6F2","#00CDDB","#0CF2C2","#0CE87B"]; // Define Segment Colors
 let seg = createSegments();         // Holds the 2d Array containing all the Segments
 // -------------------------------------------------------------- End of Setup Segments
 
@@ -37,6 +40,12 @@ let mouse = new vec2(-100,-100);            // Mouse Position
 let cRect = canvas.getBoundingClientRect(); // Canvas Position for Mouse Tracking
 let mouseLimit = 60;
 // -------------------------------------------------------------- End of Variables for Mouse 
+// -------------------------------------------------------------- Variables Colors
+
+let colorPreset = ["#53B327","#6B74FF","#89FF52","#FF7538","#B35830"]; // Define Segment Colors
+let colorPreset1 = ["#3B3A70","#5D5BB0","#7E7DF0","#8583FC","#716FD6"];
+let colorPreset2 = ["#2A9C4D","#2DA630","#4C8F2E","#7DA62D","#9C9B2A"];
+// -------------------------------------------------------------- End of Colors
 
 // ____________________________________________________________________________________ End of Global Variables
 
@@ -206,12 +215,26 @@ function createSegments(){ // Create the 2d Array containing all the Segments
 
 function draw_Segment(seg){ // visualizes everything at some point these will be rendered as rectangles
 
-    ctx.strokeStyle = SegColors[seg.id-1];
+    if (pre1.checked){
+        ctx.strokeStyle = colorPreset[seg.id-1];
+        ctx.fillStyle = colorPreset[seg.id-1];
+    }
+    if (pre2.checked){
+        ctx.strokeStyle = colorPreset1[seg.id-1];
+        ctx.fillStyle = colorPreset1[seg.id-1];
+    }
+    if (pre3.checked){
+        ctx.strokeStyle = colorPreset2[seg.id-1];
+        ctx.fillStyle = colorPreset2[seg.id-1];
+    }
 
-
+    if(checkBoxFill.checked){
+        ctx.fillRect(seg.c.x-(seg.size/2),seg.c.y-(seg.size/2),seg.size,seg.size);  
+    }
+    else{
     // ctx.fillRect(seg.origin.x,seg.origin.y,10,10);
-    ctx.strokeRect(seg.c.x-(seg.size/2),seg.c.y-(seg.size/2),seg.size,seg.size);
- 
+        ctx.strokeRect(seg.c.x-(seg.size/2),seg.c.y-(seg.size/2),seg.size,seg.size);
+    }
 }
 // -------------------------------------------------------------- End of Creating and drawing the Segments
 

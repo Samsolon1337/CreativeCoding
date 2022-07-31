@@ -12,6 +12,7 @@
 </head>
 <body>  
     <main>
+
         <!-- <div class="sliderDiv">
             <div>
                 <p>Amount of Objects</p>
@@ -34,9 +35,22 @@
         <!--
             <canvas width="3600" height="1800" id="canvas">Sadly, your Browser, does not support this Project</canvas>
         -->
-        <canvas width="1000" height="1000"id="canvas2" style="z-index: 99999;">Sadly, your Browser, does not support this Project</canvas>
+        
         <canvas width="1000" height="1000"id="canvas">Sadly, your Browser, does not support this Project</canvas>
+        <div id="boxes">
+            <input type="checkbox" id="fillrect" name="interest" value="fillrect" unchecked>
+            <label for="fillrect">Fill Rectangles</label>
+            <div id="radiobox">
+                <input type="radio" id="one" name="customStyle" value="1">
+                <label for="one" class="radiolabel">Color Preset 1</label>
 
+                <input type="radio"  id="two" name="customStyle" value="2">
+                <label for="two" class="radiolabel">Color Preset 2</label>
+
+                <input type="radio"  id="three" name="customStyle" value="3">
+                <label for="three" class="radiolabel">Color Preset 3</label> 
+            </div>
+        </div>
     </main> 
     <script src=".\script\myscript.js" type="module"></script>
 </body>
