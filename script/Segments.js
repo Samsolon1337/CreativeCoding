@@ -5,6 +5,8 @@ export class segment{
         /** 
         @param {vec2} _a - the vector2
         */
+// ____________________________________________________________________________________ Constructor
+
     constructor(_a, _angle = 90, _len = 100, _size, _parent){
         // -------------------------------------------------------------- Child/Parent Managment
         if (_parent instanceof segment){ // Copying nessecary parent data
@@ -36,12 +38,12 @@ export class segment{
     calc_C(){
         this.c = new vec2();
         let ang = new vec2();
-        // -------------------------------------------------------------- Calculate B using the length and angle
+        // -------------------------------------------------------------- Calculate B using the length and Angle 2r*PI
         ang.x = this.len* Math.cos(this.angle);
         ang.y = this.len* Math.sin(this.angle);
         this.b = this.a.add(ang);
         // -------------------------------------------------------------- End of Calculate B
-        // -------------------------------------------------------------- Calculate C by calculating the arc length
+        // -------------------------------------------------------------- Calculate C by calculating the arc length (Angle/360)*2PI*r
         let r = ang.mag();
         this.c.x = this.a.x+(ang.x/360)*(2*Math.cos(r*this.angle));
         this.c.y = this.a.y+(ang.y/360)*(2*Math.sin(r*this.angle));
@@ -58,8 +60,4 @@ export class segment{
         }
         this.calc_C();
     }
-
-        
-    
-
 }
