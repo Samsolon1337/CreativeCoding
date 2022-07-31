@@ -32,8 +32,7 @@ export class segment{
     }
     
 // ____________________________________________________________________________________ Methodes
-
-    
+   
     calc_C(){
         this.c = new vec2();
         let ang = new vec2();
@@ -49,8 +48,8 @@ export class segment{
         // -------------------------------------------------------------- End of Calculate C
     }
 
-    update(){//Keep the children linked to their Parents
-
+    update(){
+        // -------------------------------------------------------------- Linking childrens origin point to parents end point
         if(this.parent){
            // let dir = this.a.sub(this.c);
             this.parent.calc_C();
