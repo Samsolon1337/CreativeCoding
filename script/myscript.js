@@ -35,7 +35,7 @@ let seg = createSegments();         // Holds the 2d Array containing all the Seg
 // -------------------------------------------------------------- Variables for Mouse
 let mouse = new vec2(-100,-100);            // Mouse Position
 let cRect = canvas.getBoundingClientRect(); // Canvas Position for Mouse Tracking
-let mouseLimit = 90;
+let mouseLimit = 60;
 // -------------------------------------------------------------- End of Variables for Mouse 
 
 // ____________________________________________________________________________________ End of Global Variables
@@ -143,9 +143,10 @@ function reactToMouse(seg){   //Opposite to Spring = Push the Segments Away
         seg.origin.y < mouse.y + limit && seg.origin.y > mouse.y - limit){//check if a given object is in a given space,, MAYBE ADD ARRAY Coordinates * docsize/amount, to reduze number of calls?
             //seg.calc_C();
             ctx.save();
-            ctx.fillStyle = "red";
-            draw_Segment(seg);
+            ctx.fillStyle = "#FFFFFF";
+            ctx.fillRect(seg.c.x-(seg.size/2),seg.c.y-(seg.size/2),seg.size,seg.size);
             ctx.restore();
+            draw_Segment(seg);
             direction.normalize();
             seg.a = seg.origin.add(direction.multi(limit)); // segment evading the mouse+radius
         
@@ -205,7 +206,7 @@ function createSegments(){ // Create the 2d Array containing all the Segments
 
 function draw_Segment(seg){ // visualizes everything at some point these will be rendered as rectangles
 
-        // ctx.fillStyle = SegColors[seg.id-1];
+    ctx.strokeStyle = SegColors[seg.id-1];
 
 
     // ctx.fillRect(seg.origin.x,seg.origin.y,10,10);
