@@ -46,7 +46,8 @@ html, body {
     color: rgb(255, 255, 255);
     border: 2px rgb(255, 255, 255) solid;
     border-radius: 6px;
-
+    animation-name: bounce2;
+    animation-duration: .1s;
 }
 
 
@@ -73,4 +74,11 @@ html, body {
     0%{padding: 15px;}
     60%{padding: 12px;}
     100%{padding: 15px;}
+}
+
+@keyframes bounce2 {
+
+    0%{padding: 15px 100px;}
+    60%{padding: 12px 80px;}
+    100%{padding: 15px 100px;}
 }
