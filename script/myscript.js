@@ -2,6 +2,13 @@ import {segment} from "./Segments.js";  //Import Segments for Foward Kinematis
 import {vec2} from "./Vector2.js";      //Import Custom Vector Class
 
 // ____________________________________________________________________________________ Global Variables
+
+// -------------------------------------------------------------- initialize Sliders
+const amountSlider = document.getElementById('Amount'); // Get Amount
+const segmentSlider = document.getElementById('SegmentAmount'); // Get segAmount
+const limitSlider = document.getElementById('Limit'); // Get length
+const angleSlider = document.getElementById('Angle'); // Get Angle
+// -------------------------------------------------------------- End of Sliders
 // -------------------------------------------------------------- initialize Canvas
 const canvas = document.getElementById('canvas'); // Get Canvas
 
@@ -10,23 +17,25 @@ const docSize  = (window.innerWidth<canvas.width && window.innerHeight < canvas.
 canvas.width = docSize.x; // Set canvas Size equal to DocSize
 canvas.height = docSize.y;
 let ctx = canvas.getContext("2d");// Context required for drawing
-// -------------------------------------------------------------- End of initialization
-
+// -------------------------------------------------------------- End of Canvas
 // -------------------------------------------------------------- Setup Segments
 let amount = 20;     // Amount of Objects in one Row
-let segamount = 2;  // Amount of Segments
+let segAmount = 3;  // Amount of Segments
 
 let segLen = docSize.x/(amount+1);  // Global Segment length
-let segDecline = .7;              // Global Segment Length Decline
+let segDecline = .6;              // Global Segment Length Decline
 
 let segAngle = 90;                  // Global initial Segment Angle
+let SegColors = ["#0C65E8","#0CA6F2","#00CDDB","#0CF2C2","#0CE87B"]; // Define Segment Colors
 let seg = createSegments();         // Holds the 2d Array containing all the Segments
 // -------------------------------------------------------------- End of Setup Segments
 
-// -------------------------------------------------------------- Variables for Mouse Tracking
-let cRect = canvas.getBoundingClientRect();         // Canvas Position for Mouse Tracking
-let mouse = new vec2(-1,-1) , prev = new vec2();    // Mouse Position
-// -------------------------------------------------------------- End of Variables for Mouse Tracking
+// -------------------------------------------------------------- Variables for Mouse
+let mouse = new vec2(-100,-100);            // Mouse Position
+let cRect = canvas.getBoundingClientRect(); // Canvas Position for Mouse Tracking
+let mouseLimit = 90;
+// -------------------------------------------------------------- End of Variables for Mouse 
+
 // ____________________________________________________________________________________ End of Global Variables
 
 // -------------------------------------------------------------- Event Listener
@@ -35,6 +44,7 @@ document.onload = function(e){ // When page finished loading, call this function
         console.error("Something went wrong, maybe try updating your browser");
         return;
     }
+
 }
 
 document.onmousemove = function(e){ // get and update Mouse position --- Desktop Devices Mouse Tracking
@@ -64,6 +74,28 @@ canvas.ontouchstart = function(e){  // get and update Touch position --- Mobile 
 window.onresize = function(e){  // When the User Resizes the Browser Window, fetch the new bounding box for Mouse Tracking
     cRect = canvas.getBoundingClientRect(); 
 }
+
+document.oninput = function(e) {
+    console.log(e.target.id);
+    switch(e.target.id){
+        case "Amount":
+            amount = this.value;
+            break;
+        case "SegmentAmount":
+            segAmount = this.value;
+            break;
+        case "Limit":
+            mouseLimit = this.value;
+            break;
+        case "Angle":
+            segAngle = this.value;
+            break;
+    }
+    seg = null;
+    seg = createSegments();
+} 
+
+  
 // -------------------------------------------------------------- End of Event Listener
 
 // Setting the Main Loop
@@ -72,34 +104,28 @@ setInterval(mainLoop,20);
 // My Functions
 
 // function create_A_Segments(){
-//     let segs= [amount];
+//     let segArray= [amount];
 //     let len = 200, decline = .5, angle;
 //     for(let i = 0; i < amount; i++){
 
-//         segs[i] = new segment(new vec2(600,600),90,len,segs[i-1]);
+//         segArray[i] = new segment(new vec2(600,600),90,len,segArray[i-1]);
 //         len *= decline ;
 //     }
-//     return segs
+//     return segArray
 // }
 //  
 // ____________________________________________________________________________________ Functions
+
 // -------------------------------------------------------------- Main Loop
 function mainLoop(){
-    ctx.clearRect(0,0, docSize.x,docSize.y);// resets canvas
-    let size = 400
-    ctx.strokeRect(mouse.x-size/2,mouse.y-size/2,size,size);
-
-    ctx.strokeStyle = "#3f9f3f";
+    ctx.clearRect(0,0, docSize.x,docSize.y);    // Reset canvas
     
     for(let posx = 0; posx < amount;posx++){  
         for(let posy = 0; posy < amount;posy++){
-            for(let i = 0; i < segamount; i++){
+            for(let i = 0; i < segAmount; i++){
                 seg[posx][posy][i].update();
                 draw_Segment(seg[posx][posy][i]);
                 reactToMouse(seg[posx][posy][i]);
-
-
-
             }
         } 
     }         
@@ -109,14 +135,12 @@ function mainLoop(){
 // -------------------------------------------------------------- Push and Pull on Elements
 function reactToMouse(seg){   //Opposite to Spring = Push the Segments Away
     if(!seg.parent){//only work on the base Segment AKA the Main one
-        let limit = 90, direction = seg.a.sub(mouse);//LIMIT: raduis for the collisiondetection; DIR: substract multiple vectors to create a directional vector
+        let limit = mouseLimit, direction = seg.a.sub(mouse);//LIMIT: raduis for the collisiondetection; DIR: substract multiple vectors to create a directional vector
         
         if(seg.origin.x > mouse.x - limit && seg.origin.x < mouse.x + limit &&
         seg.origin.y < mouse.y + limit && seg.origin.y > mouse.y - limit){//check if a given object is in a given space,, MAYBE ADD ARRAY Coordinates * docsize/amount, to reduze number of calls?
             //seg.calc_C();
-            ctx.strokeStyle = "red"; // when in ounding box turn red
             direction.normalize();
-            
             seg.a = seg.origin.add(direction.multi(limit)); // segment evading the mouse+radius
         
             seg.mouseEnter = true;//This is used to give the spring some downtime, to come back ,, MAYBE use spring() internal loop
@@ -125,7 +149,6 @@ function reactToMouse(seg){   //Opposite to Spring = Push the Segments Away
     }
     if(seg.mouseEnter == true){
         ctx.save();
-        ctx.strokeStyle = "yellow";
         if(seg.a == seg.origin){
             seg.mouseEnter = false;
         }
@@ -148,40 +171,37 @@ function spring(seg){            // //Opposite to reactToMouse = Pulls the Segme
 // -------------------------------------------------------------- Creating and drawing the Segments
 function createSegments(){ // Create the 2d Array containing all the Segments
     let vecSteps = docSize.div(amount+1);//Important for gridbased positional data
-    let segs = [amount];// Array that stores all the information
+    let segArray = [amount];// Array that stores all the information
     let len, decline = segDecline; // length of the segments, so far not decreaseing with each itearation
     let angle = segAngle;
 
     for(let x = 0; x < amount; x++){// Loop for x axis
-        segs[x] = Array(amount);  // Make array 2 Diemsional to store the grid 
+        segArray[x] = Array(amount);  // Make array 2 Diemsional to store the grid 
         angle = Math.random()*(140-40)+40; // Random Angle
         for(let y = 0; y < amount; y++){// Loop for y Axis
-            segs[x][y] = Array(segamount); 
+            segArray[x][y] = Array(segAmount); 
             len = segLen;
-            for(let i = 0; i < segamount; i++){ //Loop for interation , TECHNIALLY Z AXIS
+            for(let i = 0; i < segAmount; i++){ //Loop for interation , TECHNIALLY Z AXIS
                 // Make array 3 Dimensional, to store the Segment Arrays
                 
-                segs[x][y][i] = new segment(new vec2(vecSteps.x *(x+1),vecSteps.y *(y+1)),angle,len,(segs[x][y][(i-1)])); // Still a bug with the parent entity, for some reason always null
+                segArray[x][y][i] = new segment(new vec2(vecSteps.x *(x+1),vecSteps.y *(y+1)),angle,len,(segArray[x][y][(i-1)])); // Still a bug with the parent entity, for some reason always null
                 len *= decline;
-                //console.table(segs[x][y][i]);
+                //console.table(segArray[x][y][i]);
             }   
         }
-    } //console.log(`Number of elements ${segs.length}, Splits ${segs.length / 4}`) // FUCKING DEBUGGING  
-    return segs;
+    } //console.log(`Number of elements ${segArray.length}, Splits ${segArray.length / 4}`) // FUCKING DEBUGGING  
+    return segArray;
 }
 
 function draw_Segment(seg){ // visualizes everything at some point these will be rendered as rectangles
-    if(!seg.parent){
-        ctx.fillStyle = "#F23078";
 
-    }
-    else{
-        ctx.fillStyle = "#A6036D";
-    }
+        ctx.fillStyle = SegColors[seg.id-1];
+
+
     // ctx.fillRect(seg.origin.x,seg.origin.y,10,10);
     ctx.fillRect(seg.c.x-(seg.len/2),seg.c.y-(seg.len/2),seg.len,seg.len);
  
 }
-
 // -------------------------------------------------------------- End of Creating and drawing the Segments
+
 // ____________________________________________________________________________________ End of Functions
