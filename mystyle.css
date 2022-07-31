@@ -15,7 +15,7 @@ html, body {
     margin: auto;
     display: block;
     position: relative;
-    top: 5vh;
+    top: 2vh;
     bottom: 0;
     left: 0;
     right: 0;
@@ -30,23 +30,24 @@ html, body {
     width: 100vw;
 }
 #radiobox{
-    display: flex;  
+    display: inline-block;  
 }
-#boxes input[type="checkbox"],#boxes input[type=radio]{/* The Checkbox Buttons*/
+#boxes input[type="checkbox"], #boxes input[type=radio]{/* The Checkbox Buttons*/
+    /* Make the standard inputs invisible */
     opacity: 0;
 }
-#boxes input[type="checkbox"]+label{/* The label of the Checkbox Buttons*/
+#boxes input[type="checkbox"] + label{/* The label of the Checkbox Buttons*/
     padding: 15px 100px;
     border: 2px black solid;
     border-radius: 6px;
 }
-#boxes input[type="checkbox"]:checked +label{/* The label of the Checkbox Buttons*/
-    padding: 15px 100px;
+#boxes input[type="checkbox"]:checked + label{/* The label of the Checkbox Buttons*/
+    padding: 17px 102px;
     background-color: rgb(15, 175, 26);
     color: rgb(255, 255, 255);
-    border: 2px rgb(255, 255, 255) solid;
+    border: 0px rgb(255, 255, 255) solid;
     border-radius: 6px;
-    animation-name: bounce2;
+    animation-name: bounce;
     animation-duration: .1s;
 }
 
@@ -57,28 +58,18 @@ html, body {
     border-radius: 6px;
 
 }
-#boxes input[type="radio"]:checked+label{/* The label of the Radio Buttons*/
-    padding: 15px;
+#boxes input[type="radio"]:checked + label{/* The label of the Radio Buttons*/
+    padding: 17px;
     background-color: rgb(15, 175, 26);
     color: rgb(255, 255, 255);
-    border: 2px rgb(255, 255, 255) solid;
+    border: 0px rgb(255, 255, 255) solid;
     border-radius: 6px;
-    animation-name: bounce;
-    animation-duration: .1s;
-
-
 }
+
 
 @keyframes bounce {
 
-    0%{padding: 15px;}
-    60%{padding: 12px;}
-    100%{padding: 15px;}
-}
-
-@keyframes bounce2 {
-
-    0%{padding: 15px 100px;}
-    60%{padding: 12px 80px;}
-    100%{padding: 15px 100px;}
+    0%{transform: scale(1);}
+    60%{transform: scale(0.9);}
+    100%{transform: scale(1.1);}
 }

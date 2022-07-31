@@ -16,7 +16,7 @@ const pre4 = document.getElementById("four");
 // -------------------------------------------------------------- End of Sliders
 // -------------------------------------------------------------- initialize Canvas
 const canvas = document.getElementById('canvas'); // Get Canvas
-const docSize  = (window.innerWidth<canvas.width && window.innerHeight < canvas.height)?new vec2(window.innerWidth,window.innerHeight): new vec2(canvas.width, canvas.height); // Roughly setting responsive design
+const docSize  = (window.innerWidth<canvas.width+200 && window.innerHeight < canvas.height+200)?new vec2(window.innerWidth,window.innerHeight): new vec2(canvas.width, canvas.height); // Roughly setting responsive design
 
 canvas.width = docSize.x; // Set canvas Size equal to DocSize
 canvas.height = docSize.y;
@@ -45,7 +45,7 @@ let mouseLimit = 60;
 
 let colorPreset = ["#048ABF","#04BF9D","#04D9D9","#AEF2E6","#04C4D9"]; // Define Segment Colors
 let colorPreset1 = ["#8C355A","#382D32","#CFA5B6","#52313F","#856A75"];
-let colorPreset2 = ["#8EBF24","#D1E086","#94A653","#F9FAE9"];
+let colorPreset2 = ["#365902","#94A653","#8EBF24","#EAE8B8","#102624"];
 let colorPreset3 = ["#545454","#FFFFFF","#000000","#FFFFFF","#000000"];
 // -------------------------------------------------------------- End of Colors
 
