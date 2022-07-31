@@ -4,25 +4,27 @@ import {vec2} from "./Vector2.js";      //Import Custom Vector Class
 // ____________________________________________________________________________________ Global Variables
 
 // -------------------------------------------------------------- initialize Sliders
-const amountSlider = document.getElementById('Amount'); // Get Amount
-const segmentSlider = document.getElementById('SegmentAmount'); // Get segAmount
-const limitSlider = document.getElementById('Limit'); // Get length
-const angleSlider = document.getElementById('Angle'); // Get Angle
+// const amountSlider = document.getElementById('Amount'); // Get Amount
+// const segmentSlider = document.getElementById('SegmentAmount'); // Get segAmount
+// const limitSlider = document.getElementById('Limit'); // Get length
+// const angleSlider = document.getElementById('Angle'); // Get Angle
+// const SliderValue = document.getElementById("Slidervalue");
 // -------------------------------------------------------------- End of Sliders
 // -------------------------------------------------------------- initialize Canvas
 const canvas = document.getElementById('canvas'); // Get Canvas
-
 const docSize  = (window.innerWidth<canvas.width && window.innerHeight < canvas.height)?new vec2(window.innerWidth,window.innerHeight): new vec2(canvas.width, canvas.height); // Roughly setting responsive design
 
 canvas.width = docSize.x; // Set canvas Size equal to DocSize
 canvas.height = docSize.y;
+
 let ctx = canvas.getContext("2d");// Context required for drawing
 // -------------------------------------------------------------- End of Canvas
 // -------------------------------------------------------------- Setup Segments
-let amount = 20;     // Amount of Objects in one Row
+let amount = 40;     // Amount of Objects in one Row
 let segAmount = 3;  // Amount of Segments
 
-let segLen = docSize.x/(amount+1);  // Global Segment length
+let segStepSize = docSize.div(amount+1);
+let segLen = 100;  // Global Segment length
 let segDecline = .6;              // Global Segment Length Decline
 
 let segAngle = 90;                  // Global initial Segment Angle
@@ -46,7 +48,6 @@ document.onload = function(e){ // When page finished loading, call this function
     }
 
 }
-
 document.onmousemove = function(e){ // get and update Mouse position --- Desktop Devices Mouse Tracking
     mouse.x = e.clientX-cRect.left;
     mouse.y = e.clientY-cRect.top;
@@ -75,25 +76,22 @@ window.onresize = function(e){  // When the User Resizes the Browser Window, fet
     cRect = canvas.getBoundingClientRect(); 
 }
 
-document.oninput = function(e) {
-    console.log(e.target.id);
-    switch(e.target.id){
-        case "Amount":
-            amount = this.value;
-            break;
-        case "SegmentAmount":
-            segAmount = this.value;
-            break;
-        case "Limit":
-            mouseLimit = this.value;
-            break;
-        case "Angle":
-            segAngle = this.value;
-            break;
-    }
-    seg = null;
-    seg = createSegments();
-} 
+
+// amountSlider.onchange = function() {
+//     amount = this.value;
+//     segStepSize = docSize.div(amount+1);
+//     seg = createSegments();  
+//   } 
+// segmentSlider.onchange = function() {
+//     SliderValue.innerHTML = this.value;
+// }
+// angleSlider.onchange = function() {
+//     SliderValue.innerHTML = this.value;
+// } 
+// limitSlider.onchange = function() {
+//     mouseLimit = this.value;
+// } 
+
 
   
 // -------------------------------------------------------------- End of Event Listener
@@ -118,18 +116,22 @@ setInterval(mainLoop,20);
 
 // -------------------------------------------------------------- Main Loop
 function mainLoop(){
+    let a = amount;
     ctx.clearRect(0,0, docSize.x,docSize.y);    // Reset canvas
-    
-    for(let posx = 0; posx < amount;posx++){  
-        for(let posy = 0; posy < amount;posy++){
+    for(let posx = 0; posx < a;posx++){  
+        for(let posy = 0; posy < a;posy++){
             for(let i = 0; i < segAmount; i++){
+
                 seg[posx][posy][i].update();
+
                 draw_Segment(seg[posx][posy][i]);
+                
                 reactToMouse(seg[posx][posy][i]);
-            }
+            }   
         } 
     }         
 
+    
 }
 // -------------------------------------------------------------- End of Main Loop
 // -------------------------------------------------------------- Push and Pull on Elements
@@ -140,6 +142,10 @@ function reactToMouse(seg){   //Opposite to Spring = Push the Segments Away
         if(seg.origin.x > mouse.x - limit && seg.origin.x < mouse.x + limit &&
         seg.origin.y < mouse.y + limit && seg.origin.y > mouse.y - limit){//check if a given object is in a given space,, MAYBE ADD ARRAY Coordinates * docsize/amount, to reduze number of calls?
             //seg.calc_C();
+            ctx.save();
+            ctx.fillStyle = "red";
+            draw_Segment(seg);
+            ctx.restore();
             direction.normalize();
             seg.a = seg.origin.add(direction.multi(limit)); // segment evading the mouse+radius
         
@@ -155,9 +161,10 @@ function reactToMouse(seg){   //Opposite to Spring = Push the Segments Away
         spring(seg)
         ctx.restore();
     }
+
 }
 
-function spring(seg){            // //Opposite to reactToMouse = Pulls the Segments Towards their Center 
+function spring(seg){   //Opposite to reactToMouse = Pulls the Segments Towards their Center 
     let k = .05, vel = new vec2(0,0), f;
 
     f = seg.a.sub(seg.origin);
@@ -170,22 +177,25 @@ function spring(seg){            // //Opposite to reactToMouse = Pulls the Segme
 // -------------------------------------------------------------- End of Push and Pull on Elements
 // -------------------------------------------------------------- Creating and drawing the Segments
 function createSegments(){ // Create the 2d Array containing all the Segments
-    let vecSteps = docSize.div(amount+1);//Important for gridbased positional data
+    let vecSteps = segStepSize;//Important for gridbased positional data
     let segArray = [amount];// Array that stores all the information
     let len, decline = segDecline; // length of the segments, so far not decreaseing with each itearation
     let angle = segAngle;
 
+    let size;
     for(let x = 0; x < amount; x++){// Loop for x axis
         segArray[x] = Array(amount);  // Make array 2 Diemsional to store the grid 
         angle = Math.random()*(140-40)+40; // Random Angle
         for(let y = 0; y < amount; y++){// Loop for y Axis
             segArray[x][y] = Array(segAmount); 
+            size = segStepSize.x;
             len = segLen;
             for(let i = 0; i < segAmount; i++){ //Loop for interation , TECHNIALLY Z AXIS
                 // Make array 3 Dimensional, to store the Segment Arrays
                 
-                segArray[x][y][i] = new segment(new vec2(vecSteps.x *(x+1),vecSteps.y *(y+1)),angle,len,(segArray[x][y][(i-1)])); // Still a bug with the parent entity, for some reason always null
-                len *= decline;
+                segArray[x][y][i] = new segment(new vec2(vecSteps.x *(x+1),vecSteps.y *(y+1)),angle,len,size,(segArray[x][y][(i-1)])); // Still a bug with the parent entity, for some reason always null
+                size *= decline; // visual related entity but the same as len
+                len *= decline; // Physic related entity but the same as size
                 //console.table(segArray[x][y][i]);
             }   
         }
@@ -195,11 +205,11 @@ function createSegments(){ // Create the 2d Array containing all the Segments
 
 function draw_Segment(seg){ // visualizes everything at some point these will be rendered as rectangles
 
-        ctx.fillStyle = SegColors[seg.id-1];
+        // ctx.fillStyle = SegColors[seg.id-1];
 
 
     // ctx.fillRect(seg.origin.x,seg.origin.y,10,10);
-    ctx.fillRect(seg.c.x-(seg.len/2),seg.c.y-(seg.len/2),seg.len,seg.len);
+    ctx.strokeRect(seg.c.x-(seg.size/2),seg.c.y-(seg.size/2),seg.size,seg.size);
  
 }
 // -------------------------------------------------------------- End of Creating and drawing the Segments

@@ -5,7 +5,7 @@ export class segment{
         /** 
         @param {vec2} _a - the vector2
         */
-    constructor(_a, _angle = 90, _len = 100, _parent){
+    constructor(_a, _angle = 90, _len = 100, _size, _parent){
        // console.log(_parent instanceof segment);
         if (_parent instanceof segment){ //Following Segments, that will also be linked to the Main one, 
                                         // Thats the reason it mostly stores the parents data
@@ -15,6 +15,7 @@ export class segment{
             this.parent = _parent;     
             this.angle = (Math.PI / 180)*_angle + _parent.angle; // Converts the angle to degrees
             this.len = _len;  
+            this.size = _size;
 
         }
         else {//First Segment ---- Main one
@@ -24,6 +25,7 @@ export class segment{
             this.parent = null;
             this.angle = -(Math.PI / 180)*_angle; // Converts the angle to degrees
             this.len = _len;
+            this.size = _size;
         }
         this.calc_C();//Always use this after chaning the angle
 
