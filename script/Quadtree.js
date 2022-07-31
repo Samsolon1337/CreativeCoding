@@ -54,9 +54,12 @@ export class quadTree{
             return;
         }
         else{
-            for(let element of this.elementArray){
-                if(range.contains(element.a)){
-                    found.push(element);
+            for(let obj of this.elementArray){
+                if(range.contains(obj[0].origin)){
+                    found.push(obj);
+                }
+                else{
+                    console.log(obj);
                 }
             }
             

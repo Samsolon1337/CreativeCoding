@@ -15,6 +15,6 @@ export class rect{
     }
 
     contains(coord){// check if point is contained in rectangle
-        return (coord.x <= this.x + this.w && coord.x >= this.x && coord.y <= this.y + this.h && coord.y >= this.y );
+        return (coord.x <= this.x + this.w && coord.x >= this.x && coord.y <= this.y + this.h && coord.y >= this.y);
     }
 }
