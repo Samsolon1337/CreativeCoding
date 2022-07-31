@@ -110,20 +110,7 @@ window.onresize = function(e){  // When the User Resizes the Browser Window, fet
 // Setting the Main Loop
 setInterval(mainLoop,20);
 
-// My Functions
-
-// function create_A_Segments(){
-//     let segArray= [amount];
-//     let len = 200, decline = .5, angle;
-//     for(let i = 0; i < amount; i++){
-
-//         segArray[i] = new segment(new vec2(600,600),90,len,segArray[i-1]);
-//         len *= decline ;
-//     }
-//     return segArray
-// }
-//  
-// ____________________________________________________________________________________ Functions
+//____________________________________________________________________________________ Functions
 
 // -------------------------------------------------------------- Main Loop
 function mainLoop(){
